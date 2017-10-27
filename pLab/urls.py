@@ -26,4 +26,4 @@ urlpatterns = [
     url(r'^psampler/', include('pSampler.urls'), name='psampler'),
     # url(r'^pflow/', include('pFlow.urls'), name='pflow'),
     url(r'^classifier/', include('Classifier.urls')),
-];
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT);
