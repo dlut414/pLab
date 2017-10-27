@@ -56,12 +56,12 @@ function showDivs(n) {
 	{%block navbar%}
 	<div class="container">
 		<nav class="navbar navbar-expand-lg navbar-light bg-light">
-		  <a class="navbar-brand" href="{%url 'classifier'%}">pLab</a>
+		  <a class="navbar-brand" href="{%url 'psampler'%}">pLab</a>
 		  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
 			<div class="navbar-nav">
-			  <a class="nav-item nav-link" href="">pSampler <span class="sr-only">(current)</span></a>
-			  <a class="nav-item nav-link" href="">pFlow</a>
-			  <a class="nav-item nav-link active" href="{%url 'classifier'%}">Classifier</a>
+			  <a class="nav-item nav-link {%if app_name == 'psampler'%}active{%endif%}" href="{%url 'psampler'%}">pSampler <span class="sr-only">(current)</span></a>
+			  <a class="nav-item nav-link {%if app_name == 'pflow'%}active{%endif%}" href="">pFlow</a>
+			  <a class="nav-item nav-link {%if app_name == 'classifier'%}active{%endif%}" href="{%url 'classifier'%}">Classifier</a>
 			</div>
 		  </div>
 		</nav>

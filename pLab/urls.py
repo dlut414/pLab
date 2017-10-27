@@ -22,8 +22,8 @@ from django.conf import settings
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', RedirectView.as_view(url='/classifier/', permanent=True)),
-    # url(r'^psampler/', include('pSampler.urls'), name='psampler'),
+    url(r'^$', RedirectView.as_view(url='/psampler/', permanent=True)),
+    url(r'^psampler/', include('pSampler.urls'), name='psampler'),
     # url(r'^pflow/', include('pFlow.urls'), name='pflow'),
     url(r'^classifier/', include('Classifier.urls')),
 ];
