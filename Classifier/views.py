@@ -4,11 +4,12 @@ from __future__ import unicode_literals
 from django.shortcuts import render
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), 'python'))
+dir_path = os.path.join( os.path.dirname(__file__), 'python' );
+sys.path.append( dir_path )
 from NN import NN
 
 nn = NN([3,3,3]);
-nn.load('config');
+nn.load(os.path.join(dir_path, 'config'));
 # Create your views here.
 def index(request):
     
