@@ -6,6 +6,6 @@ from django.shortcuts import render
 # Create your views here.
 def index(request):
     CONTEXT = {
-        'app_name' : 'psampler',
+        'app_name' : 'pSampler',
     };
     return render(request, 'pSampler/index.html', context=CONTEXT);

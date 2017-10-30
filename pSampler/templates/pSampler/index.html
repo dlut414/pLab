@@ -3,21 +3,26 @@
 {%block content%}
 <!-- Sidebar/menu -->
 <div class="w3-sidebar w3-light-grey" style="z-index:3;width:260px" id="mySidebar">
-  <div class="w3-container w3-display-container w3-padding-16">
-    <i onclick="w3_close()" class="fa fa-remove w3-hide-large w3-button w3-transparent w3-display-topright"></i>
-    <h3>{{app_name}}</h3>
-    <hr>
-    <form action="" target="_self">
-      <p> Geometry file:</p>
-	  <p><i> See FORMAT in 'Extra Info'</i></p>
-	  <input type="file" id="filechooser" required/>
-	  <hr>
-      <p> para</p>
-      <input class="w3-input w3-border" type="number" value="0" id="para" min="0" max="6">
-	  <hr>
-      <p><button class="w3-button w3-block w3-green" type="submit" method="post"> Search availability</button></p>
-    </form>
-  </div>
+	<div class="w3-container w3-display-container w3-padding-16">
+		<i onclick="w3_close()" class="fa fa-remove w3-hide-large w3-button w3-transparent w3-display-topright"></i>
+		<h3>{{app_name}}</h3>
+		<hr>
+		<form action="" target="_self">
+			<!-- <p> Geometry file:</p> -->
+			<!-- <p><i> See FORMAT in 'Extra Info'</i></p> -->
+			<!-- <input type="file" id="filechooser" required/> -->
+			<div id="drop_zone">
+				<p>Drop a geometry file here</p>
+				<p><i> See FORMAT in 'Extra Info'</i></p>
+			</div>
+			<output id="list"></output>
+			<hr>
+			<p> para</p>
+			<input class="w3-input w3-border" type="number" value="1" id="para" min="0" max="6" required>
+			<hr>
+			<p><button class="w3-button w3-block w3-green" type="submit" method="post"> Render</button></p>
+		</form>
+	</div>
 </div>
 
 <!-- Overlay effect when opening sidebar on small screens -->
@@ -31,10 +36,7 @@
 
   <div class="w3-container">
     <div>
-		viewport
-		{%load static%}
-		<script type="text/javascript" src="{% static 'js/psampler/renderer.js' %}"></script>
-		<canvas id="canvas" width="700" height="400"></canvas>
+		<canvas id="canvas" width="700" height="400">Your browser doesn't support WebGL!</canvas>
     </div>
     <hr>
     
@@ -56,4 +58,55 @@
   </div>
 <!-- End page content -->
 </div>
+{% load static %}
+<script type="text/javascript" src="{% static 'js/psampler/renderer.js' %}"></script>
+<script type="text/javascript">
+	if(window.File && window.FileReader && window.FileList && window.Blob){
+		//All the File APIs are supported.
+	}
+	else{
+		alert('The functions are not fully supported in this browser.');
+	}
+	
+	var reader;
+	
+    function errorHandler(evt) {
+		switch(evt.target.error.code) {
+		    case evt.target.error.NOT_FOUND_ERR:
+				alert('File Not Found!');
+				break;
+		    case evt.target.error.NOT_READABLE_ERR:
+				alert('File is not readable');
+				break;
+		    case evt.target.error.ABORT_ERR:
+				break; // noop
+		    default:
+				alert('An error occurred reading this file.');
+		};
+	}
+  
+	function handleFileSelect(evt){
+		evt.stopPropagation();
+		evt.preventDefault();
+		var output = [];
+		var f = evt.dataTransfer.files[0];
+		output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+					f.size, ' bytes, last modified: ',
+					f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+					'</li>');
+		document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+		reader = new FileReader();
+		reader.onerror = errorHandler;
+		reader.readAsText(f);
+		render_2D(reader.result);
+	}
+	function handleDragOver(evt){
+		evt.stopPropagation();
+		evt.preventDefault();
+		evt.dataTransfer.dropEffect = 'copy';
+	}
+	var dropZone = document.getElementById('drop_zone');
+	dropZone.addEventListener('dragover', handleDragOver, false);
+	dropZone.addEventListener('drop', handleFileSelect, false);
+</script>
 {%endblock%}

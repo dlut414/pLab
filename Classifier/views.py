@@ -13,6 +13,6 @@ nn.load(os.path.join(dir_path, 'config'));
 # Create your views here.
 def index(request):
     CONTEXT = {
-        'app_name' : 'classifier',
+        'app_name' : 'Classifier',
     };
     return render(request, 'Classifier/index.html', context=CONTEXT);
