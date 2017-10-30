@@ -232,7 +232,7 @@ hr{border:0;border-top:1px solid #eee;margin:20px 0}
   -o-transition: opacity 1s linear;
   -webkit-transition: opacity 1s linear;
 }
-#progress_bar.loading {
+#progress_bar .loading {
   opacity: 1.0;
 }
 #progress_bar .percent {
