@@ -1,11 +1,11 @@
 {%extends "base.html"%}
-{%block title%}<title>Classifier</title>{%endblock%}
+{%block title%}<title>{{app_name}}</title>{%endblock%}
 {%block content%}
 <!-- Sidebar/menu -->
 <div class="w3-sidebar w3-light-grey" style="z-index:3;width:260px" id="mySidebar">
   <div class="w3-container w3-display-container w3-padding-16">
     <i onclick="w3_close()" class="fa fa-remove w3-hide-large w3-button w3-transparent w3-display-topright"></i>
-    <h3>Classifier</h3>
+    <h3>{{app_name}}</h3>
     <hr>
     <form action="" target="_self">
       <p><label><i class="fa fa-calendar-check-o"></i> Geometry input</label></p>
@@ -31,21 +31,8 @@
   <div class="w3-hide-large" style="margin-top:80px"></div>
 
   <div class="w3-container">
-    <h4><strong>The space</strong></h4>
-    <div class="w3-row w3-large">
-      <div class="w3-col s6">
-        <p><i class="fa fa-fw fa-male"></i> Max people: 4</p>
-        <p><i class="fa fa-fw fa-bath"></i> Bathrooms: 2</p>
-        <p><i class="fa fa-fw fa-bed"></i> Bedrooms: 1</p>
-      </div>
-      <div class="w3-col s6">
-        <p><i class="fa fa-fw fa-clock-o"></i> Check In: After 3PM</p>
-        <p><i class="fa fa-fw fa-clock-o"></i> Check Out: 12PM</p>
-      </div>
-	  <hr>
-	  <br>
-	  <br>
-	  <p><button class="w3-button w3-green w3-third" onclick="document.getElementById('print_image').style.display='block'">Print image</button></p>
+    <div>
+		viewport
     </div>
     <hr>
     

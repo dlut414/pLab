@@ -8,4 +8,4 @@ def index(request):
     CONTEXT = {
         'app_name' : 'psampler',
     };
-    return render(request, 'index.html', context=CONTEXT);
+    return render(request, 'pSampler/index.html', context=CONTEXT);

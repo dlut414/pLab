@@ -15,4 +15,4 @@ def index(request):
     CONTEXT = {
         'app_name' : 'classifier',
     };
-    return render(request, 'index.html', context=CONTEXT);
+    return render(request, 'Classifier/index.html', context=CONTEXT);
