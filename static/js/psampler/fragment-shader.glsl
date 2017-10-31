@@ -1,3 +1,4 @@
+<![CDATA[
 #version 330 core
 const int BD2 = 0x00000000;
 const int FLUID = 0x00000001;
@@ -84,3 +85,4 @@ void paintRB() {
 	}
 	color.a = 1.0f;
 }
+]]

@@ -15,6 +15,7 @@
 				<p>Drop a geometry file here</p>
 				<p><i> See FORMAT in 'Extra Info'</i></p>
 			</div>
+			<div id="progress_bar"><div class="percent">0%</div></div>
 			<output id="list"></output>
 			<hr>
 			<p> para</p>
@@ -59,6 +60,8 @@
 <!-- End page content -->
 </div>
 {% load static %}
+<!-- <script id="vertex-shader" type="x-shader/x-vertex" src="{% static 'js/psampler/vertex-shader.glsl' %}"></script> -->
+<!-- <script id="fragment-shader" type="x-shader/x-fragment" src="{% static 'js/psampler/fragment-shader.glsl' %}"></script> -->
 <script type="text/javascript" src="{% static 'js/psampler/renderer.js' %}"></script>
 <script type="text/javascript">
 	if(window.File && window.FileReader && window.FileList && window.Blob){
@@ -69,6 +72,7 @@
 	}
 	
 	var reader;
+	var progress = document.querySelector('.percent');
 	
     function errorHandler(evt) {
 		switch(evt.target.error.code) {
@@ -84,6 +88,18 @@
 				alert('An error occurred reading this file.');
 		};
 	}
+	
+	function updateProgress(evt) {
+		// evt is an ProgressEvent.
+		if (evt.lengthComputable) {
+			var percentLoaded = Math.round((evt.loaded / evt.total) * 100);
+			// Increase the progress bar length.
+			if (percentLoaded < 100) {
+				progress.style.width = percentLoaded + '%';
+				progress.textContent = percentLoaded + '%';
+			}
+		}
+	}
   
 	function handleFileSelect(evt){
 		evt.stopPropagation();
@@ -95,10 +111,30 @@
 					f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
 					'</li>');
 		document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+		
+		// Reset progress indicator on new file selection.
+		progress.style.width = '0%';
+		progress.textContent = '0%';
 		reader = new FileReader();
 		reader.onerror = errorHandler;
+		reader.onprogress = updateProgress;
+		reader.onloadstart = function(e){
+			document.getElementById('progress_bar').className = 'loading';
+		};
+		reader.onload = function(e){
+			// Ensure that the progress bar displays 100% at the end.
+			progress.style.width = '100%';
+			progress.textContent = '100%';
+		};
+		reader.onloadend = function(e){
+			if(reader.readyState == FileReader.DONE) {
+				render_2D(reader.result);
+			}
+			else{
+				alert('Reading file failed!');
+			}
+		};
 		reader.readAsText(f);
-		render_2D(reader.result);
 	}
 	function handleDragOver(evt){
 		evt.stopPropagation();

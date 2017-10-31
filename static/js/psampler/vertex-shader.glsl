@@ -1,3 +1,4 @@
+<![CDATA[
 #version 330 core
 uniform mat4 vMvp;
 uniform mat4 vModelMat;
@@ -26,3 +27,4 @@ void main() {
 	gl_Position = fPos;
 	gl_PointSize = 2.0f;
 }
+]]>
