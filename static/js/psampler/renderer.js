@@ -6,59 +6,57 @@ var type_arr = [], x_arr = [], y_arr = [], vx_arr = [], vy_arr = [], s_arr = [];
 // var source_fragment = document.getElementById('vertex-shader').innerHTML;
 var source_vertex = `
 	#version 100
-	uniform mat4 vMvp;
-	uniform mat4 vModelMat;
-	uniform mat4 vViewMat;
-	uniform mat4 vProjectionMat;
+	precision mediump float;
+	// uniform mat4 vMvp;
 	attribute float type;
 	attribute float x;
 	attribute float y;
 	attribute float s;
-	varying float v_type;
-	varying float v_s;
+	// varying float v_type;
+	// varying float v_s;
 	void main() {
-		v_type = type;
-		v_s = s;
-		gl_Position = vMvp* vec4(x, y, 0.0, 1.0);
-		gl_PointSize = 2.0;
+		// v_type = type;
+		// v_s = s;
+		gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+		gl_PointSize = 20.0;
 	}
 `;
 var source_fragment = `
 	#version 100
 	precision mediump float;
-	uniform float sRangeMax;
-	uniform float sRangeMin;
-	varying float v_type;
-	varying float v_s;
+	// uniform float sRangeMax;
+	// uniform float sRangeMin;
+	// varying float v_type;
+	// varying float v_s;
 	const float EPS = 0.01;
-	const vec4 white = vec4(1., 1., 1., 1.);
-	const vec4 red = vec4(1., 0., 0., 1.);
-	const vec4 green = vec4(0., 1., 0., 1.);
-	const vec4 blue = vec4(0., 0., 1., 1.);
-	void paintRGB();
+	const vec4 white = vec4(1.0, 1.0, 1.0, 1.0);
+	const vec4 red = vec4(1.0, 0.0, 0.0, 1.0);
+	const vec4 green = vec4(0.0, 1.0, 0.0, 1.0);
+	const vec4 blue = vec4(0.0, 0.0, 1.0, 1.0);
+	// void paintRGB();
 	void main() {
-		paintRGB();
-		gl_FragColor = vec4(0., 0., 0., 1.0);
+		//paintRGB();
+		gl_FragColor = vec4(0.1, 0.1, 0.1, 1.0);
 	}
 	
-	void paintRGB() {
-		float range = sRangeMax - sRangeMin;
-		float s_normalized = (v_s - sRangeMin) / range;
-		if (abs(v_type) <= EPS) {
-			gl_FragColor = vec4(0.1, 0.1, 0.1, 1.0);
-		}
-		else {
-			if (s_normalized >= 0.0 && s_normalized < 0.5)
-				gl_FragColor = 2.0 * ((0.5 - s_normalized)* blue + s_normalized* green);
-			else if (s_normalized >= 0.5 && s_normalized < 1.0)
-				gl_FragColor = 2.0 * ((1.0 - s_normalized)* green + (s_normalized - 0.5)* red);
-			else if (s_normalized < 0.0)
-				gl_FragColor = blue;
-			else
-				gl_FragColor = red;
-		}
-		gl_FragColor.a = 1.0;
-	}
+	// void paintRGB() {
+		// float range = sRangeMax - sRangeMin;
+		// float s_normalized = (v_s - sRangeMin) / range;
+		// if (abs(v_type) <= EPS) {
+			// gl_FragColor = vec4(0.1, 0.1, 0.1, 1.0);
+		// }
+		// else {
+			// if (s_normalized >= 0.0 && s_normalized < 0.5)
+				// gl_FragColor = 2.0 * ((0.5 - s_normalized)* blue + s_normalized* green);
+			// else if (s_normalized >= 0.5 && s_normalized < 1.0)
+				// gl_FragColor = 2.0 * ((1.0 - s_normalized)* green + (s_normalized - 0.5)* red);
+			// else if (s_normalized < 0.0)
+				// gl_FragColor = blue;
+			// else
+				// gl_FragColor = red;
+		// }
+		// gl_FragColor.a = 1.0;
+	// }
 `;
 
 function render_2D(result){
@@ -82,33 +80,44 @@ function render_2D(result){
 	gl.useProgram(program0);
 	var vbo_type = gl.createBuffer();
 	var vbo_x = gl.createBuffer(), vbo_y = gl.createBuffer(), vbo_s = gl.createBuffer();
+	
+	// gl.uniform1f(gl.getUniformLocation(program0, 'sRangeMax'), sRangeMax);
+	// gl.uniform1f(gl.getUniformLocation(program0, 'sRangeMin'), sRangeMin);
+	// gl.uniformMatrix4fv(gl.getUniformLocation(program0, 'vMvp'), false, vMvp);
+
 	gl.bindBuffer(gl.ARRAY_BUFFER, vbo_type);
 	gl.bufferData(gl.ARRAY_BUFFER, type_arr, gl.STATIC_DRAW);
-	gl.vertexAttribPointer(0, 1, gl.FLOAT, false, 0, 0);
+	var type_loc = gl.getAttribLocation(program0, 'type');
+	gl.enableVertexAttribArray(type_loc);
+	gl.vertexAttribPointer(type_loc, 1, gl.FLOAT, false, 0, 0);
 	
 	gl.bindBuffer(gl.ARRAY_BUFFER, vbo_x);
 	gl.bufferData(gl.ARRAY_BUFFER, x_arr, gl.STATIC_DRAW);
-	gl.vertexAttribPointer(1, 1, gl.FLOAT, false, 0, 0);
+	var x_loc = gl.getAttribLocation(program0, 'x');
+	gl.enableVertexAttribArray(x_loc);
+	gl.vertexAttribPointer(x_loc, 1, gl.FLOAT, false, 0, 0);
 	
 	gl.bindBuffer(gl.ARRAY_BUFFER, vbo_y);
 	gl.bufferData(gl.ARRAY_BUFFER, y_arr, gl.STATIC_DRAW);
-	gl.vertexAttribPointer(2, 1, gl.FLOAT, false, 0, 0);
+	var y_loc = gl.getAttribLocation(program0, 'y');
+	gl.enableVertexAttribArray(y_loc);
+	gl.vertexAttribPointer(y_loc, 1, gl.FLOAT, false, 0, 0);
 	
 	gl.bindBuffer(gl.ARRAY_BUFFER, vbo_s);
 	gl.bufferData(gl.ARRAY_BUFFER, s_arr, gl.STATIC_DRAW);
-	gl.vertexAttribPointer(3, 1, gl.FLOAT, false, 0, 0);
+	var s_loc = gl.getAttribLocation(program0, 's');
+	gl.enableVertexAttribArray(s_loc);
+	gl.vertexAttribPointer(s_loc, 1, gl.FLOAT, false, 0, 0);
 	
-	gl.enableVertexAttribArray(0);
-	gl.enableVertexAttribArray(1);
-	gl.enableVertexAttribArray(2);
-	gl.enableVertexAttribArray(3);
 	
 	gl.drawArrays(gl.POINTS, 0, s_arr.length);
 	
-	gl.disableVertexAttribArray(0);
-	gl.disableVertexAttribArray(1);
-	gl.disableVertexAttribArray(2);
-	gl.disableVertexAttribArray(3);
+	gl.disableVertexAttribArray(type_loc);
+	gl.disableVertexAttribArray(x_loc);
+	gl.disableVertexAttribArray(y_loc);
+	gl.disableVertexAttribArray(s_loc);
+	
+	//gl.useProgram(0);
 }
 
 function setupCanvas(){
@@ -142,10 +151,9 @@ function setupShader(){
 	gl.detachShader(program0, vertexShader);
 	gl.detachShader(program0, fragmentShader);
 	if( !gl.getProgramParameter(program0, gl.LINK_STATUS) ){
-		alert('Shader program did not link successfully!');
+		alert('Shader program0 did not link successfully!');
 		return;
 	}
-	alert('Shaders successfully loaded.');
 }
 
 
