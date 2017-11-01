@@ -1,8 +1,13 @@
 /* parse string text and render as points */
+var canvas = document.getElementById('canvas');
 var gl;
 var program0;
 var type_arr, x_arr, y_arr, vx_arr, vy_arr, s_arr;
-var canvas_size = [document.getElementById('canvas').width, document.getElementById('canvas').height];
+var pos_avg, pos_max, pos_min;
+var pan;
+var scale;
+var mouse_down = false;
+var canvas_size;
 // var source_vertex = document.getElementById('vertex-shader').innerHTML;
 // var source_fragment = document.getElementById('vertex-shader').innerHTML;
 var source_vertex = `
@@ -13,6 +18,8 @@ var source_vertex = `
 	uniform vec2 pos_max;
 	uniform vec2 pos_min;
 	uniform vec2 canvas_size;
+	uniform vec2 pan;
+	uniform float scale;
 	attribute float type;
 	attribute float x;
 	attribute float y;
@@ -25,6 +32,8 @@ var source_vertex = `
 		vec2 delta = (pos_max - pos_min) / 2.0;
 		vec2 pos = vec2( x - pos_avg.x, y - pos_avg.y ) / max(delta.x, delta.y)* 0.95;
 		pos.x = pos.x / canvas_size.x * canvas_size.y;
+		pos = scale* pos;
+		pos = pos + pan;
 		gl_Position = vec4(pos, 0.0, 1.0);
 		gl_PointSize = 2.0;
 	}
@@ -67,38 +76,52 @@ var source_fragment = `
 	}
 `;
 
-function render_2D(result){
-	var lines = result.split('\n');
-	if(lines[lines.length-1] == '') lines.splice(length-1, 1);
-	type_arr = new Float32Array(lines.length);
-	x_arr = new Float32Array(lines.length), y_arr = new Float32Array(lines.length);
-	vx_arr = new Float32Array(lines.length), vy_arr = new Float32Array(lines.length);
-	s_arr = new Float32Array(lines.length);
-	var pos_avg = new Float32Array(2);
-	var pos_max = new Float32Array(2);
-	var pos_min = new Float32Array(2);
-	for(var i=0;i<lines.length;i++){
-		var line = lines[i].split(' ');
-		var type = Number(line[0]);
-		var x = Number(line[1]), y = Number(line[2]);
-		var vx = Number(line[3]), vy = Number(line[4]), s = Number(line[5]);
-		type_arr[i] = type;
-		x_arr[i] = x, y_arr[i] = y;
-		vx_arr[i] = vx, vy_arr[i] = vy, s_arr[i] = vx;
-		pos_avg[0] += Number(line[1]), pos_avg[1] += Number(line[2]);
-		pos_max[0] = pos_max[0] > x ? pos_max[0] : x;
-		pos_max[1] = pos_max[1] > y ? pos_max[1] : y;
-		pos_min[0] = pos_min[0] < x ? pos_min[0] : x;
-		pos_min[1] = pos_min[1] < y ? pos_min[1] : y;
+gl = setupCanvas_2D();
+canvas_size = [gl.drawingBufferWidth, gl.drawingBufferHeight];
+
+function coordInCanvas(evt){
+	var x_pixel = evt.pageX - evt.target.offsetLeft;
+	var y_pixel = canvas_size[1] - (evt.pageY - evt.target.offsetTop);
+	var x_canvas = (x_pixel - canvas_size[0] / 2.0) / (canvas_size[0] / 2.0);
+	var y_canvas = (y_pixel - canvas_size[1] / 2.0) / (canvas_size[1] / 2.0);
+	return [x_canvas, y_canvas];
+}
+//using jQuery
+$('#canvas').mousedown(function(e){
+	mouse_down = true;
+	this.pre = coordInCanvas(e);
+});
+$('#canvas').mouseup(function(e){
+	mouse_down = false;
+});
+$('#canvas').mousemove(function(e){
+	if(mouse_down){
+		var now = coordInCanvas(e);
+		pan[0] += now[0] - this.pre[0];
+		pan[1] += now[1] - this.pre[1];
+		this.pre = now;
+		render_2D();
 	}
-	pos_avg[0] /= lines.length, pos_avg[1] /= lines.length;
-	
-	if( !(gl = setupCanvas()) ) {
+});
+$('#canvas').on('wheel', function(e){
+	e.stopPropagation();
+	e.preventDefault();
+	//e.originalEvent depends on the browser!
+	if(e.originalEvent.deltaY > 0){
+		scale = scale*1.1;
+	}
+	else{
+		scale = scale*0.9 >= 0.1 ? scale*0.9 : 0.1;
+	}
+	render_2D();
+});
+
+function render_2D(){	
+	if( !gl ) {
 		alert('WebGL not available!');
 		return;
 	}
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	setupShader();
 	
 	gl.useProgram(program0);
 	var vbo_type = gl.createBuffer();
@@ -112,6 +135,8 @@ function render_2D(result){
 	gl.uniform2fv(gl.getUniformLocation(program0, 'pos_max'), pos_max);
 	gl.uniform2fv(gl.getUniformLocation(program0, 'pos_min'), pos_min);
 	gl.uniform2fv(gl.getUniformLocation(program0, 'canvas_size'), canvas_size);
+	gl.uniform2fv(gl.getUniformLocation(program0, 'pan'), pan);
+	gl.uniform1f(gl.getUniformLocation(program0, 'scale'), scale);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, vbo_type);
 	gl.bufferData(gl.ARRAY_BUFFER, type_arr, gl.STATIC_DRAW);
@@ -144,11 +169,40 @@ function render_2D(result){
 	gl.disableVertexAttribArray(y_loc);
 	gl.disableVertexAttribArray(s_loc);
 	
-	//gl.useProgram(0);
+	gl.useProgram(0);
 }
 
-function setupCanvas(){
-	var canvas = document.getElementById('canvas');
+function setupData_2D(result){
+	var lines = result.split('\n');
+	if(lines[lines.length-1] == '') lines.splice(length-1, 1);
+	type_arr = new Float32Array(lines.length);
+	x_arr = new Float32Array(lines.length), y_arr = new Float32Array(lines.length);
+	vx_arr = new Float32Array(lines.length), vy_arr = new Float32Array(lines.length);
+	s_arr = new Float32Array(lines.length);
+	pos_avg = new Float32Array(2);
+	pos_max = new Float32Array(2);
+	pos_min = new Float32Array(2);
+	for(var i=0;i<lines.length;i++){
+		var line = lines[i].split(' ');
+		var type = Number(line[0]);
+		var x = Number(line[1]), y = Number(line[2]);
+		var vx = Number(line[3]), vy = Number(line[4]), s = Number(line[5]);
+		type_arr[i] = type;
+		x_arr[i] = x, y_arr[i] = y;
+		vx_arr[i] = vx, vy_arr[i] = vy, s_arr[i] = s;
+		pos_avg[0] += Number(line[1]), pos_avg[1] += Number(line[2]);
+		pos_max[0] = pos_max[0] > x ? pos_max[0] : x;
+		pos_max[1] = pos_max[1] > y ? pos_max[1] : y;
+		pos_min[0] = pos_min[0] < x ? pos_min[0] : x;
+		pos_min[1] = pos_min[1] < y ? pos_min[1] : y;
+	}
+	pos_avg[0] /= lines.length, pos_avg[1] /= lines.length;
+	
+	pan = new Float32Array(2);
+	scale = 1.0;
+}
+
+function setupCanvas_2D(){
 	gl = canvas.getContext('webgl');
 	if(!gl) return null;
 	gl.enable(gl.TEXTURE_1D);
@@ -161,10 +215,11 @@ function setupCanvas(){
 	gl.enable(gl.DEPTH_TEST);
 	gl.depthFunc(gl.LESS);
 	gl.clearColor(1.0, 1.0, 1.0, 1.0);
+	setupShader_2D();
 	return gl;
 }
 
-function setupShader(){
+function setupShader_2D(){
 	var vertexShader = gl.createShader(gl.VERTEX_SHADER);
 	var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
 	gl.shaderSource(vertexShader, source_vertex);

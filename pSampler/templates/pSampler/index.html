@@ -130,7 +130,8 @@
 		};
 		reader.onloadend = function(e){
 			if(reader.readyState == FileReader.DONE) {
-				render_2D(reader.result);
+				setupData_2D(reader.result);
+				render_2D();
 			}
 			else{
 				alert('Reading file failed!');
