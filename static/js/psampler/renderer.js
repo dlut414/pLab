@@ -1,75 +1,98 @@
 /* parse string text and render as points */
 var gl;
 var program0;
-var type_arr = [], x_arr = [], y_arr = [], vx_arr = [], vy_arr = [], s_arr = [];
+var type_arr, x_arr, y_arr, vx_arr, vy_arr, s_arr;
+var canvas_size = [document.getElementById('canvas').width, document.getElementById('canvas').height];
 // var source_vertex = document.getElementById('vertex-shader').innerHTML;
 // var source_fragment = document.getElementById('vertex-shader').innerHTML;
 var source_vertex = `
 	#version 100
 	precision mediump float;
 	// uniform mat4 vMvp;
+	uniform vec2 pos_avg;
+	uniform vec2 pos_max;
+	uniform vec2 pos_min;
+	uniform vec2 canvas_size;
 	attribute float type;
 	attribute float x;
 	attribute float y;
 	attribute float s;
-	// varying float v_type;
-	// varying float v_s;
+	varying float v_type;
+	varying float v_s;
 	void main() {
-		// v_type = type;
-		// v_s = s;
-		gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
-		gl_PointSize = 20.0;
+		v_type = type;
+		v_s = s;
+		vec2 delta = (pos_max - pos_min) / 2.0;
+		vec2 pos = vec2( x - pos_avg.x, y - pos_avg.y ) / max(delta.x, delta.y)* 0.95;
+		pos.x = pos.x / canvas_size.x * canvas_size.y;
+		gl_Position = vec4(pos, 0.0, 1.0);
+		gl_PointSize = 2.0;
 	}
 `;
 var source_fragment = `
 	#version 100
 	precision mediump float;
-	// uniform float sRangeMax;
-	// uniform float sRangeMin;
-	// varying float v_type;
-	// varying float v_s;
+	uniform float sRangeMax;
+	uniform float sRangeMin;
+	varying float v_type;
+	varying float v_s;
 	const float EPS = 0.01;
 	const vec4 white = vec4(1.0, 1.0, 1.0, 1.0);
 	const vec4 red = vec4(1.0, 0.0, 0.0, 1.0);
 	const vec4 green = vec4(0.0, 1.0, 0.0, 1.0);
 	const vec4 blue = vec4(0.0, 0.0, 1.0, 1.0);
-	// void paintRGB();
+	void paintRGB();
 	void main() {
-		//paintRGB();
-		gl_FragColor = vec4(0.1, 0.1, 0.1, 1.0);
+		paintRGB();
+		//gl_FragColor = vec4(0.1, 0.1, 0.1, 1.0);
 	}
 	
-	// void paintRGB() {
-		// float range = sRangeMax - sRangeMin;
-		// float s_normalized = (v_s - sRangeMin) / range;
-		// if (abs(v_type) <= EPS) {
-			// gl_FragColor = vec4(0.1, 0.1, 0.1, 1.0);
-		// }
-		// else {
-			// if (s_normalized >= 0.0 && s_normalized < 0.5)
-				// gl_FragColor = 2.0 * ((0.5 - s_normalized)* blue + s_normalized* green);
-			// else if (s_normalized >= 0.5 && s_normalized < 1.0)
-				// gl_FragColor = 2.0 * ((1.0 - s_normalized)* green + (s_normalized - 0.5)* red);
-			// else if (s_normalized < 0.0)
-				// gl_FragColor = blue;
-			// else
-				// gl_FragColor = red;
-		// }
-		// gl_FragColor.a = 1.0;
-	// }
+	void paintRGB() {
+		float range = sRangeMax - sRangeMin;
+		float s_normalized = (v_s - sRangeMin) / range;
+		if (abs(v_type) <= EPS) {
+			gl_FragColor = vec4(0.1, 0.1, 0.1, 1.0);
+		}
+		else {
+			if (s_normalized >= 0.0 && s_normalized < 0.5)
+				gl_FragColor = 2.0 * ((0.5 - s_normalized)* blue + s_normalized* green);
+			else if (s_normalized >= 0.5 && s_normalized < 1.0)
+				gl_FragColor = 2.0 * ((1.0 - s_normalized)* green + (s_normalized - 0.5)* red);
+			else if (s_normalized < 0.0)
+				gl_FragColor = blue;
+			else
+				gl_FragColor = red;
+		}
+		gl_FragColor.a = 1.0;
+	}
 `;
 
 function render_2D(result){
 	var lines = result.split('\n');
+	if(lines[lines.length-1] == '') lines.splice(length-1, 1);
+	type_arr = new Float32Array(lines.length);
+	x_arr = new Float32Array(lines.length), y_arr = new Float32Array(lines.length);
+	vx_arr = new Float32Array(lines.length), vy_arr = new Float32Array(lines.length);
+	s_arr = new Float32Array(lines.length);
+	var pos_avg = new Float32Array(2);
+	var pos_max = new Float32Array(2);
+	var pos_min = new Float32Array(2);
 	for(var i=0;i<lines.length;i++){
 		var line = lines[i].split(' ');
-		var type = Number(line[0]), 
-				x = Number(line[1]), y = Number(line[2]), 
-				vx = Number(line[3]), vy = Number(line[4]), s = Number(line[5]);
-		type_arr.push(type);
-		x_arr.push(x), y_arr.push(y);
-		vx_arr.push(vx), vy_arr.push(vy), s_arr.push(s);
+		var type = Number(line[0]);
+		var x = Number(line[1]), y = Number(line[2]);
+		var vx = Number(line[3]), vy = Number(line[4]), s = Number(line[5]);
+		type_arr[i] = type;
+		x_arr[i] = x, y_arr[i] = y;
+		vx_arr[i] = vx, vy_arr[i] = vy, s_arr[i] = vx;
+		pos_avg[0] += Number(line[1]), pos_avg[1] += Number(line[2]);
+		pos_max[0] = pos_max[0] > x ? pos_max[0] : x;
+		pos_max[1] = pos_max[1] > y ? pos_max[1] : y;
+		pos_min[0] = pos_min[0] < x ? pos_min[0] : x;
+		pos_min[1] = pos_min[1] < y ? pos_min[1] : y;
 	}
+	pos_avg[0] /= lines.length, pos_avg[1] /= lines.length;
+	
 	if( !(gl = setupCanvas()) ) {
 		alert('WebGL not available!');
 		return;
@@ -80,10 +103,15 @@ function render_2D(result){
 	gl.useProgram(program0);
 	var vbo_type = gl.createBuffer();
 	var vbo_x = gl.createBuffer(), vbo_y = gl.createBuffer(), vbo_s = gl.createBuffer();
-	
-	// gl.uniform1f(gl.getUniformLocation(program0, 'sRangeMax'), sRangeMax);
-	// gl.uniform1f(gl.getUniformLocation(program0, 'sRangeMin'), sRangeMin);
+
+	var sRangeMax = 1.0, sRangeMin = 0.0;
+	gl.uniform1f(gl.getUniformLocation(program0, 'sRangeMax'), sRangeMax);
+	gl.uniform1f(gl.getUniformLocation(program0, 'sRangeMin'), sRangeMin);
 	// gl.uniformMatrix4fv(gl.getUniformLocation(program0, 'vMvp'), false, vMvp);
+	gl.uniform2fv(gl.getUniformLocation(program0, 'pos_avg'), pos_avg);
+	gl.uniform2fv(gl.getUniformLocation(program0, 'pos_max'), pos_max);
+	gl.uniform2fv(gl.getUniformLocation(program0, 'pos_min'), pos_min);
+	gl.uniform2fv(gl.getUniformLocation(program0, 'canvas_size'), canvas_size);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, vbo_type);
 	gl.bufferData(gl.ARRAY_BUFFER, type_arr, gl.STATIC_DRAW);
@@ -108,7 +136,6 @@ function render_2D(result){
 	var s_loc = gl.getAttribLocation(program0, 's');
 	gl.enableVertexAttribArray(s_loc);
 	gl.vertexAttribPointer(s_loc, 1, gl.FLOAT, false, 0, 0);
-	
 	
 	gl.drawArrays(gl.POINTS, 0, s_arr.length);
 	
