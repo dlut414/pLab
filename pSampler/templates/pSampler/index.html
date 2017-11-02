@@ -15,7 +15,7 @@
 		<output id="list"></output>
 		<form action"" target="_self">
 			{% csrf_token %}
-			{{ form }}
+			{{ form.as_table }}
 		</form>
 		<hr>
 		<form action="" target="_self">

@@ -4,6 +4,7 @@ var gl;
 var program0;
 var data = [];
 var selected_col = 0;
+var range_max = 1.0, range_min = 0.0;
 var pos_avg, pos_max, pos_min;
 var pan;
 var scale;
@@ -42,8 +43,8 @@ var source_vertex = `
 var source_fragment = `
 	#version 100
 	precision mediump float;
-	uniform float sRangeMax;
-	uniform float sRangeMin;
+	uniform float range_max;
+	uniform float range_min;
 	varying float v_type;
 	varying float v_s;
 	const float EPS = 0.01;
@@ -58,8 +59,8 @@ var source_fragment = `
 	}
 	
 	void paintRGB() {
-		float range = sRangeMax - sRangeMin;
-		float s_normalized = (v_s - sRangeMin) / range;
+		float range = range_max - range_min;
+		float s_normalized = (v_s - range_min) / range;
 		if (abs(v_type) <= EPS) {
 			gl_FragColor = vec4(0.1, 0.1, 0.1, 1.0);
 		}
@@ -91,9 +92,8 @@ function render_2D(){
 	var vbo_type = gl.createBuffer();
 	var vbo_x = gl.createBuffer(), vbo_y = gl.createBuffer(), vbo_s = gl.createBuffer();
 
-	var sRangeMax = 1.0, sRangeMin = 0.0;
-	gl.uniform1f(gl.getUniformLocation(program0, 'sRangeMax'), sRangeMax);
-	gl.uniform1f(gl.getUniformLocation(program0, 'sRangeMin'), sRangeMin);
+	gl.uniform1f(gl.getUniformLocation(program0, 'range_max'), range_max);
+	gl.uniform1f(gl.getUniformLocation(program0, 'range_min'), range_min);
 	// gl.uniformMatrix4fv(gl.getUniformLocation(program0, 'vMvp'), false, vMvp);
 	gl.uniform2fv(gl.getUniformLocation(program0, 'pos_avg'), pos_avg);
 	gl.uniform2fv(gl.getUniformLocation(program0, 'pos_max'), pos_max);
@@ -140,7 +140,10 @@ function setupData_2D(result){
 	var lines = result.split(/(?:\n)+|(?:\r\n)+/);
 	if(lines[lines.length-1] == '') lines.splice(lines.length-1, 1);
 	var n_cols = lines[0].split(' ').length;
-	for(var i=0;i<n_cols;i++) data.push(new Float32Array(lines.length));
+	for(var i=0;i<n_cols;i++) {
+		$('#selected_scalar').append('<option value=' + String(i) + '>' + String(i) + '</option>');
+		data.push(new Float32Array(lines.length));
+	}
 	pos_avg = new Float32Array(2);
 	pos_max = new Float32Array(2);
 	pos_min = new Float32Array(2);
@@ -240,7 +243,14 @@ $('#canvas').on('wheel', function(e){
 
 //add forms control
 $('#selected_scalar').change( function(){
-	//alert($('#selected_scalar option:selected').val());
 	selected_col = $('#selected_scalar option:selected').val();
+	render_2D();
+});
+$('#range_max').change( function(){
+	range_max = $('#range_max').val();
+	render_2D();
+});
+$('#range_min').change( function(){
+	range_min = $('#range_min').val();
 	render_2D();
 });
