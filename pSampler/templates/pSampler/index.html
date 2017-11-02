@@ -4,7 +4,6 @@
 <!-- Sidebar/menu -->
 <div class="w3-sidebar w3-light-grey" style="z-index:3;width:260px" id="mySidebar">
 	<div class="w3-container w3-display-container w3-padding-16">
-		<i onclick="w3_close()" class="fa fa-remove w3-hide-large w3-button w3-transparent w3-display-topright"></i>
 		<h3>{{app_name}}</h3>
 		<hr>
 		<div id="drop_zone">
@@ -20,11 +19,11 @@
 		<hr>
 		<form action="" target="_self">
 			{% csrf_token %}
-			<p> para</p>
-			<input class="w3-input w3-border" type="number" value="1" id="para" min="0" max="6" required>
-			<hr>
+			{{ form_sl.as_table }}
+			<input class="w3-input w3-border" type="number" value="1" id="para" min="0" max="6" required><br>
 			<p><button class="w3-button w3-block w3-green" type="submit" method="post"> Render</button></p>
 		</form>
+		<hr>
 	</div>
 </div>
 
@@ -39,16 +38,15 @@
 
   <div class="w3-container">
     <div>
-		<canvas id="canvas" width="800" height="500">Your browser doesn't support WebGL!</canvas>
+		<canvas id="canvas" width="800" height="500" class="w3-border">Your browser doesn't support WebGL!</canvas>
     </div>
     <hr>
-    
     
     <h4><strong>Extra Info</strong></h4>
     <p>Draw streamline or other quantities. Only available for 2D now.</p>
 	<hr>
 	Input file <i>FORMAT</i> (text file only):<br>
-	<strong><i>Type X Y VX VY Scalar0 Scalar1 Scalar2 ...</i></strong>(add any number of scalars as you like)<br>
+	<strong><i>Type X Y VX VY Scalar0 Scalar1 Scalar2 ...</i></strong>(add as many columns of scalars as you like)<br>
 	<strong><i>...</i></strong><br>
   </div>
   <hr>
@@ -69,6 +67,7 @@
 <!-- <script id="vertex-shader" type="x-shader/x-vertex" src="{% static 'js/psampler/vertex-shader.glsl' %}"></script> -->
 <!-- <script id="fragment-shader" type="x-shader/x-fragment" src="{% static 'js/psampler/fragment-shader.glsl' %}"></script> -->
 <script type="text/javascript" src="{% static 'js/psampler/renderer.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/interpolator.js' %}"></script>
 <script type="text/javascript">
 	if(window.File && window.FileReader && window.FileList && window.Blob){
 		//All the File APIs are supported.

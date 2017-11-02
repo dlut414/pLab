@@ -37,7 +37,7 @@ var source_vertex = `
 		pos = scale* pos;
 		pos = pos + pan;
 		gl_Position = vec4(pos, 0.0, 1.0);
-		gl_PointSize = 2.0;
+		gl_PointSize = 0.3* scale* 1.0;
 	}
 `;
 var source_fragment = `
