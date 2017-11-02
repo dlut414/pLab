@@ -1,28 +1,9 @@
 {%extends "base.html"%}
 {%block title%}<title>{{app_name}}</title>{%endblock%}
 {%block content%}
-<!-- Sidebar/menu -->
-<div class="w3-sidebar w3-light-grey" style="z-index:3;width:260px" id="mySidebar">
-  <div class="w3-container w3-display-container w3-padding-16">
-    <i onclick="w3_close()" class="fa fa-remove w3-hide-large w3-button w3-transparent w3-display-topright"></i>
-    <h3>{{app_name}}</h3>
-    <hr>
-    <form action="" target="_self">
-      <p><label><i class="fa fa-calendar-check-o"></i> Geometry input</label></p>
-      <input class="w3-input-high w3-border" type="text" placeholder="See FORMAT in 'Extra Info'" name="GeoInput" required>          
-      <p><label><i class="fa fa-calendar-o"></i> Check Out</label></p>
-      <input class="w3-input w3-border" type="text" placeholder="DD MM YYYY" name="CheckOut" required>         
-      <p><label><i class="fa fa-male"></i> Adults</label></p>
-      <input class="w3-input w3-border" type="number" value="1" name="Adults" min="1" max="6">              
-      <p><label><i class="fa fa-child"></i> Kids</label></p>
-      <input class="w3-input w3-border" type="number" value="0" name="Kids" min="0" max="6">
-      <p><button class="w3-button w3-block w3-green w3-left-align" type="submit" method="post"><i class="fa fa-search w3-margin-right"></i> Search availability</button></p>
-    </form>
-  </div>
-</div>
 
-<!-- Overlay effect when opening sidebar on small screens -->
-<div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+Under construction!
+<!-- Sidebar/menu -->
 
 <!-- !PAGE CONTENT! -->
 <div class="w3-main w3-white" style="margin-left:260px">
@@ -38,11 +19,7 @@
     
     
     <h4><strong>Extra Info</strong></h4>
-    <p>View streamline & other quantities.</p>
-    <hr>
-	<p>Geometry input file format:</p>
-  </div>
-  <hr>
+
   <!-- Contact -->
   <div class="w3-container" id="contact">
     <h4><strong>Contact</strong></h4>
