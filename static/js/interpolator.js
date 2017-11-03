@@ -44,8 +44,8 @@ function point_2D(type, posX, posY, r){
 		ret[2] = dr[0]* dr[0]/rr, ret[3] = dr[0]* dr[1]/rr, ret[4] = dr[1]* dr[1]/rr;
 		return ret;
 	};
-	this.interp = function(phi, x, y){
-		if(!phi || phi.length != this.np) {
+	this.interp = function(phix, phiy, x, y){
+		if(!phix || phix.length != this.np || !phiy || phiy.length != this.np) {
 			alert('Length of phi does not match np! Return 0.');
 			return 0;
 		}
@@ -70,7 +70,8 @@ function point_2D(type, posX, posY, r){
 				  [0,0,0,0,0],
 				  [0,0,0,0,0],
 				  [0,0,0,0,0]], 
-			vv = [[0,0,0,0,0]];
+			vv = [[0,0,0,0,0],
+				  [0,0,0,0,0]];
 		for(var i=0;i<neighbors.length;i++) {
 			var id = neighbors[i];
 			if(Math.abs(type[id]) < EPS) continue;
@@ -79,12 +80,14 @@ function point_2D(type, posX, posY, r){
 			if(dis > this.r) continue;
 			var w = this.ww(dis);
 			var npq = this.poly(dr);
-			var tmp = w* (phi[id] - phi[id_min]);
+			var tmpx = w* (phix[id] - phix[id_min]);
+			var tmpy = w* (phiy[id] - phiy[id_min]);
 			for(var j=0;j<npq.length;j++){
 				for(var k=0;k<npq.length;k++){
 					mm[j][k] += npq[j] * npq[k];
 				}
-				vv[0][j] += tmp* npq[j];
+				vv[0][j] += tmpx* npq[j];
+				vv[1][j] += tmpy* npq[j];
 			}
 		}
 		var inv = matrix_invert(mm);
@@ -104,14 +107,15 @@ function point_2D(type, posX, posY, r){
 		}
 		var vv_t = transpose(vv);
 		var aa = matrix_product(inv, vv_t);
-		var Px = 1.0/this.r * aa[0];
-		var Py = 1.0/this.r * aa[1];
-		var Pxx = 2.0/this.rr * aa[2];
-		var Pxy = 1.0/this.rr * aa[3];
-		var Pyy = 2.0/this.rr * aa[4];
+		var Px = [1.0/this.r * aa[0][0], 1.0/this.r * aa[0][1]];
+		var Py = [1.0/this.r * aa[1][0], 1.0/this.r * aa[1][1]];
+		var Pxx = [2.0/this.rr * aa[2][0], 2.0/this.rr * aa[2][1]];
+		var Pxy = [1.0/this.rr * aa[3][0], 1.0/this.rr * aa[3][1]];
+		var Pyy = [2.0/this.rr * aa[4][0], 2.0/this.rr * aa[4][1]];
 		var dx = x - this.px[id_min];
 		var dy = y - this.py[id_min];
-		return phi[id_min] + (dx*Px + dy*Py) + 0.5* (dx*dx*Pxx + 2.0*dx*dy*Pxy + dy*dy*Pyy);
+		return [phix[id_min] + (dx*Px[0] + dy*Py[0]) + 0.5* (dx*dx*Pxx[0] + 2.0*dx*dy*Pxy[0] + dy*dy*Pyy[0]), 
+				phiy[id_min] + (dx*Px[1] + dy*Py[1]) + 0.5* (dx*dx*Pxx[1] + 2.0*dx*dy*Pxy[1] + dy*dy*Pyy[1])];
 	};
 	this.EPS = 0.001;
 	this.np = posX.length;
