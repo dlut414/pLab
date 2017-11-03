@@ -132,8 +132,6 @@ function render_2D(){
 	gl.disableVertexAttribArray(x_loc);
 	gl.disableVertexAttribArray(y_loc);
 	gl.disableVertexAttribArray(s_loc);
-	
-	gl.useProgram(0);
 }
 
 function setupData_2D(result){
@@ -170,13 +168,8 @@ function setupData_2D(result){
 function setupCanvas_2D(){
 	gl = canvas.getContext('webgl');
 	if(!gl) return null;
-	gl.enable(gl.TEXTURE_1D);
-	gl.enable(gl.TEXTURE_2D);
-	gl.enable(gl.TEXTURE_3D);
 	gl.enable(gl.CULL_FACE);
 	gl.frontFace(gl.CCW);
-	gl.enable(gl.POINT_SPRITE_ARB);
-	gl.enable(gl.VERTEX_PROGRAM_POINT_SIZE);
 	gl.enable(gl.DEPTH_TEST);
 	gl.depthFunc(gl.LESS);
 	gl.clearColor(1.0, 1.0, 1.0, 1.0);
