@@ -7,10 +7,7 @@ var EPS = 0.0001;
 var canvas = document.getElementById('canvas');
 var gl;
 var mode = dict.POINT_MODE;
-var sl;
-var program_point;
-var program_sl;
-var radius;
+var point_drawer, streamline_drawer;
 var data = [];
 var selected_col = 0;
 var range_max = 1.0, range_min = 0.0;
@@ -112,21 +109,20 @@ var source_sl_fragment = `
 	precision mediump float;
 	void main() {
 		gl_FragColor = vec4(0, 0, 0, 1);
-		return;
 	}
 `;
 
 gl = setupCanvas_2D();
 canvas_size = [gl.drawingBufferWidth, gl.drawingBufferHeight];
 
-function setupShader_2D(program, source_vertex, source_fragment){
+function setupShader_2D(source_vertex, source_fragment){
 	var vertexShader = gl.createShader(gl.VERTEX_SHADER);
 	var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
 	gl.shaderSource(vertexShader, source_vertex);
 	gl.shaderSource(fragmentShader, source_fragment);
 	gl.compileShader(vertexShader);
 	gl.compileShader(fragmentShader);
-	program = gl.createProgram();
+	var program = gl.createProgram();
 	gl.attachShader(program, vertexShader);
 	gl.attachShader(program, fragmentShader);
 	gl.linkProgram(program);
@@ -136,6 +132,7 @@ function setupShader_2D(program, source_vertex, source_fragment){
 		alert('Shader program did not link successfully!');
 		return;
 	}
+	return program;
 }
 function setupCanvas_2D(){
 	gl = canvas.getContext('webgl');
@@ -145,8 +142,6 @@ function setupCanvas_2D(){
 	gl.enable(gl.DEPTH_TEST);
 	gl.depthFunc(gl.LESS);
 	gl.clearColor(1.0, 1.0, 1.0, 1.0);
-	setupShader_2D(program_point, source_point_vertex, source_point_fragment);
-	setupShader_2D(program_sl, source_sl_vertex, source_sl_fragment);
 	return gl;
 }
 
@@ -179,96 +174,121 @@ function setupData_2D(result){
 	pos_avg[0] /= lines.length, pos_avg[1] /= lines.length;
 	pan = new Float32Array(2);
 	scale = 1.0;
+	point_drawer = new point_2D();
+	streamline_drawer = new streamline_2D();
 }
 
 function render_2D(){
-	if( !gl ) {
-		alert('WebGL not available!');
-		return;
+	switch(mode){
+		case dict.STREAMLINE_MODE:
+			streamline_drawer.draw();
+			break;
+		case dict.POINT_MODE:
+		default:
+			point_drawer.draw();
+			break;
 	}
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	
-	gl.useProgram(program_point);
-	var vbo_type = gl.createBuffer();
-	var vbo_x = gl.createBuffer(), vbo_y = gl.createBuffer(), vbo_s = gl.createBuffer();
+}
 
-	gl.uniform1f(gl.getUniformLocation(program_point, 'range_max'), range_max);
-	gl.uniform1f(gl.getUniformLocation(program_point, 'range_min'), range_min);
-	gl.uniform2fv(gl.getUniformLocation(program_point, 'pos_avg'), pos_avg);
-	gl.uniform2fv(gl.getUniformLocation(program_point, 'pos_max'), pos_max);
-	gl.uniform2fv(gl.getUniformLocation(program_point, 'pos_min'), pos_min);
-	gl.uniform2fv(gl.getUniformLocation(program_point, 'canvas_size'), canvas_size);
-	gl.uniform2fv(gl.getUniformLocation(program_point, 'pan'), pan);
-	gl.uniform1f(gl.getUniformLocation(program_point, 'scale'), scale);
+//functions of POINT_MODE
+function point_2D(){
+	this.program = setupShader_2D(source_point_vertex, source_point_fragment);
+	this.draw = function(){
+		if( !gl ) {
+			alert('WebGL not available!');
+			return;
+		}
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+		
+		gl.useProgram(this.program);
+		var vbo_type = gl.createBuffer();
+		var vbo_x = gl.createBuffer(), vbo_y = gl.createBuffer(), vbo_s = gl.createBuffer();
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, vbo_type);
-	gl.bufferData(gl.ARRAY_BUFFER, data[0], gl.STATIC_DRAW);
-	var type_loc = gl.getAttribLocation(program_point, 'type');
-	gl.enableVertexAttribArray(type_loc);
-	gl.vertexAttribPointer(type_loc, 1, gl.FLOAT, false, 0, 0);
-	
-	gl.bindBuffer(gl.ARRAY_BUFFER, vbo_x);
-	gl.bufferData(gl.ARRAY_BUFFER, data[1], gl.STATIC_DRAW);
-	var x_loc = gl.getAttribLocation(program_point, 'x');
-	gl.enableVertexAttribArray(x_loc);
-	gl.vertexAttribPointer(x_loc, 1, gl.FLOAT, false, 0, 0);
-	
-	gl.bindBuffer(gl.ARRAY_BUFFER, vbo_y);
-	gl.bufferData(gl.ARRAY_BUFFER, data[2], gl.STATIC_DRAW);
-	var y_loc = gl.getAttribLocation(program_point, 'y');
-	gl.enableVertexAttribArray(y_loc);
-	gl.vertexAttribPointer(y_loc, 1, gl.FLOAT, false, 0, 0);
-	
-	gl.bindBuffer(gl.ARRAY_BUFFER, vbo_s);
-	gl.bufferData(gl.ARRAY_BUFFER, data[selected_col], gl.STATIC_DRAW);
-	var s_loc = gl.getAttribLocation(program_point, 's');
-	gl.enableVertexAttribArray(s_loc);
-	gl.vertexAttribPointer(s_loc, 1, gl.FLOAT, false, 0, 0);
-	
-	gl.drawArrays(gl.POINTS, 0, data[0].length);
-	
-	gl.disableVertexAttribArray(type_loc);
-	gl.disableVertexAttribArray(x_loc);
-	gl.disableVertexAttribArray(y_loc);
-	gl.disableVertexAttribArray(s_loc);
+		gl.uniform1f(gl.getUniformLocation(this.program, 'range_max'), range_max);
+		gl.uniform1f(gl.getUniformLocation(this.program, 'range_min'), range_min);
+		gl.uniform2fv(gl.getUniformLocation(this.program, 'pos_avg'), pos_avg);
+		gl.uniform2fv(gl.getUniformLocation(this.program, 'pos_max'), pos_max);
+		gl.uniform2fv(gl.getUniformLocation(this.program, 'pos_min'), pos_min);
+		gl.uniform2fv(gl.getUniformLocation(this.program, 'canvas_size'), canvas_size);
+		gl.uniform2fv(gl.getUniformLocation(this.program, 'pan'), pan);
+		gl.uniform1f(gl.getUniformLocation(this.program, 'scale'), scale);
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, vbo_type);
+		gl.bufferData(gl.ARRAY_BUFFER, data[0], gl.STATIC_DRAW);
+		var type_loc = gl.getAttribLocation(this.program, 'type');
+		gl.enableVertexAttribArray(type_loc);
+		gl.vertexAttribPointer(type_loc, 1, gl.FLOAT, false, 0, 0);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, vbo_x);
+		gl.bufferData(gl.ARRAY_BUFFER, data[1], gl.STATIC_DRAW);
+		var x_loc = gl.getAttribLocation(this.program, 'x');
+		gl.enableVertexAttribArray(x_loc);
+		gl.vertexAttribPointer(x_loc, 1, gl.FLOAT, false, 0, 0);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, vbo_y);
+		gl.bufferData(gl.ARRAY_BUFFER, data[2], gl.STATIC_DRAW);
+		var y_loc = gl.getAttribLocation(this.program, 'y');
+		gl.enableVertexAttribArray(y_loc);
+		gl.vertexAttribPointer(y_loc, 1, gl.FLOAT, false, 0, 0);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, vbo_s);
+		gl.bufferData(gl.ARRAY_BUFFER, data[selected_col], gl.STATIC_DRAW);
+		var s_loc = gl.getAttribLocation(this.program, 's');
+		gl.enableVertexAttribArray(s_loc);
+		gl.vertexAttribPointer(s_loc, 1, gl.FLOAT, false, 0, 0);
+		
+		gl.drawArrays(gl.POINTS, 0, data[0].length);
+		
+		gl.disableVertexAttribArray(type_loc);
+		gl.disableVertexAttribArray(x_loc);
+		gl.disableVertexAttribArray(y_loc);
+		gl.disableVertexAttribArray(s_loc);
+	};
+	return this;
 }
 
 //functions of STEAMLINE_MODE
 function streamline_2D(){
-	this.point = point_2D(data[0], data[1], data[2], radius);
 	this.linex = [], this.liney = [];
-	this.p1 = [0,0], this.p2 = [0,0];
-	this.nlines = 1;
-	this.len = 0;
-	this.rsln = 0.01;
+	this.radius = Number($('#radius').val());
+	this.p1 = [Number($('#p1x').val()),Number($('#p1y').val())], this.p2 = [Number($('#p2x').val()),Number($('#p2y').val())];
+	this.nlines = Number($('#nlines').val());
+	this.slen = Number($('#slen').val());
+	this.rsln = Number($('#rsln').val());
+	this.program = setupShader_2D(source_sl_vertex, source_sl_fragment);
 	this.setupStreamline = function(){
-		this.linex = [], this.liney = [];
+		this.point = new pointCloud_2D(data[0], data[1], data[2], this.radius);
+		var linex = [], liney = [];
 		var dx = (this.p2[0] - this.p1[0]) / (this.nlines + 1);
 		var dy = (this.p2[1] - this.p1[1]) / (this.nlines + 1);
 		for(var i=1;i<=this.nlines;i++){
 			var start = [this.p1[0] + dx* i, this.p1[1] + dy* i];
-			var len = 0;
+			var slen = 0;
 			var fwd = [start[0], start[1]], bwd = [start[0], start[1]];
 			var vel = this.point.interp(data[3], data[4], fwd[0], fwd[1]);
 			var mvel = Math.sqrt(vel[0]*vel[0] + vel[1]*vel[1]);
-			this.linex.push([start[0]]), this.liney.push([start[1]]);
-			while(mvel > EPS && len <= this.len){
-				fwd[0] += rsln* vel[0], fwd[1] += rsln* vel[1];
-				this.linex[linex.length-1].push(fwd[0]), this.liney[liney.length-1].push(fwd[1]);
+			linex.push([start[0]]), liney.push([start[1]]);
+			while(mvel > EPS && slen <= this.slen){
+				fwd[0] += this.rsln* vel[0], fwd[1] += this.rsln* vel[1];
+				linex[linex.length-1].push(fwd[0]), liney[liney.length-1].push(fwd[1]);
 				mvel = Math.sqrt(vel[0]*vel[0] + vel[1]*vel[1]);
-				len += rsln* mvel;
+				slen += this.rsln* mvel;
 				vel = this.point.interp(data[3], data[4], fwd[0], fwd[1]);;
 			}
-			len = 0;
+			slen = 0;
 			mvel = Math.sqrt(vel[0]*vel[0] + vel[1]*vel[1]);
-			this.linex.push([start[0]]), this.liney.push([start[1]]);
-			while(mvel > EPS && len < this.len){
-				bwd[0] -= rsln* vel[0], bwd[1] -= rsln* vel[1];
-				this.linex[linex.length-1].push(bwd[0]), this.liney[liney.length-1].push(bwd[1]);
+			linex.push([start[0]]), liney.push([start[1]]);
+			while(mvel > EPS && slen < this.slen){
+				bwd[0] -= this.rsln* vel[0], bwd[1] -= this.rsln* vel[1];
+				linex[linex.length-1].push(bwd[0]), liney[liney.length-1].push(bwd[1]);
 				mvel = Math.sqrt(vel[0]*vel[0] + vel[1]*vel[1]);
-				len += rsln* mvel;
+				slen += this.rsln* mvel;
 				vel = this.point.interp(data[3], data[4], bwd[0], bwd[1]);;
 			}
+		}
+		for(var i=0;i<linex.length && i<liney.length;i++){
+			this.linex.push(new Float32Array(linex[i]));
+			this.liney.push(new Float32Array(liney[i]));
 		}
 	};
 	this.draw = function(){
@@ -278,25 +298,25 @@ function streamline_2D(){
 		}
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		
-		gl.useProgram(program_sl);
+		gl.useProgram(this.program);
 		var vbo_linex = gl.createBuffer(), vbo_liney = gl.createBuffer();
 
-		gl.uniform2fv(gl.getUniformLocation(program_sl, 'pos_avg'), pos_avg);
-		gl.uniform2fv(gl.getUniformLocation(program_sl, 'pos_max'), pos_max);
-		gl.uniform2fv(gl.getUniformLocation(program_sl, 'pos_min'), pos_min);
-		gl.uniform2fv(gl.getUniformLocation(program_sl, 'canvas_size'), canvas_size);
-		gl.uniform2fv(gl.getUniformLocation(program_sl, 'pan'), pan);
-		gl.uniform1f(gl.getUniformLocation(program_sl, 'scale'), scale);
+		gl.uniform2fv(gl.getUniformLocation(this.program, 'pos_avg'), pos_avg);
+		gl.uniform2fv(gl.getUniformLocation(this.program, 'pos_max'), pos_max);
+		gl.uniform2fv(gl.getUniformLocation(this.program, 'pos_min'), pos_min);
+		gl.uniform2fv(gl.getUniformLocation(this.program, 'canvas_size'), canvas_size);
+		gl.uniform2fv(gl.getUniformLocation(this.program, 'pan'), pan);
+		gl.uniform1f(gl.getUniformLocation(this.program, 'scale'), scale);
 		for(var i=0;i<this.linex.length && i<this.liney.length;i++){
 			gl.bindBuffer(gl.ARRAY_BUFFER, vbo_linex);
 			gl.bufferData(gl.ARRAY_BUFFER, this.linex[i], gl.STATIC_DRAW);
-			var x_loc = gl.getUniformLocation(program_sl, 'x');
+			var x_loc = gl.getAttribLocation(this.program, 'x');
 			gl.enableVertexAttribArray(x_loc);
 			gl.vertexAttribPointer(x_loc, 1, gl.FLOAT, false, 0, 0);
 			
 			gl.bindBuffer(gl.ARRAY_BUFFER, vbo_liney);
 			gl.bufferData(gl.ARRAY_BUFFER, this.liney[i], gl.STATIC_DRAW);
-			var y_loc = gl.getUniformLocation(program_sl, 'y');
+			var y_loc = gl.getAttribLocation(this.program, 'y');
 			gl.enableVertexAttribArray(y_loc);
 			gl.vertexAttribPointer(y_loc, 1, gl.FLOAT, false, 0, 0);
 			
@@ -348,14 +368,51 @@ $('#canvas').on('wheel', function(e){
 
 //add forms control
 $('#selected_scalar').change( function(){
-	selected_col = $('#selected_scalar option:selected').val();
+	selected_col = Number($('#selected_scalar option:selected').val());
 	render_2D();
 });
 $('#range_max').change( function(){
-	range_max = $('#range_max').val();
+	range_max = Number($('#range_max').val());
 	render_2D();
 });
 $('#range_min').change( function(){
-	range_min = $('#range_min').val();
+	range_min = Number($('#range_min').val());
 	render_2D();
+});
+$('#radius').change(function(){
+	streamline_drawer.radius = Number($('#radius').val());
+});
+$('#nlines').change(function(){
+	streamline_drawer.nlines = Number($('#nlines').val());
+});
+$('#slen').change(function(){
+	streamline_drawer.slen = Number($('#slen').val());
+});
+$('#rsln').change(function(){
+	streamline_drawer.rsln = Number($('#rsln').val());
+});
+$('#p1x').change(function(){
+	streamline_drawer.p1[0] = Number($('#p1x').val());
+});
+$('#p1y').change(function(){
+	streamline_drawer.p1[1] = Number($('#p1y').val());
+});
+$('#p2x').change(function(){
+	streamline_drawer.p2[0] = Number($('#p2x').val());
+});
+$('#p2y').change(function(){
+	streamline_drawer.p2[1] = Number($('#p2y').val());
+});
+
+//mode selection
+$('#mode').change(function(){
+	if( $('#mode').prop('checked') ){
+		mode = dict.STREAMLINE_MODE;
+		streamline_drawer.setupStreamline();
+		render_2D();
+	}
+	else {
+		mode = dict.POINT_MODE;
+		render_2D();
+	}
 });

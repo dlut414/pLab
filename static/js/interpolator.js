@@ -1,5 +1,5 @@
 /* interpolation functions */
-function point_2D(type, posX, posY, r){
+function pointCloud_2D(type, posX, posY, r){
 	if(type.length != posX.length || posX.length != posY.length) {
 		alert('Data lengths are different!');
 		return;
@@ -29,6 +29,7 @@ function point_2D(type, posX, posY, r){
 		var key_list = this.neighbor_key(x, y);
 		for(var i=0;i<key_list.length;i++){
 			var val = this.cell.get(key_list[i]);
+			if(!val) continue;
 			ret = ret.concat(val);
 		}
 		return ret;
@@ -47,10 +48,10 @@ function point_2D(type, posX, posY, r){
 	this.interp = function(phix, phiy, x, y){
 		if(!phix || phix.length != this.np || !phiy || phiy.length != this.np) {
 			alert('Length of phi does not match np! Return 0.');
-			return 0;
+			return;
 		}
 		var neighbors = this.neighbor_list(x, y);
-		if(!neighbors || neighbors.length == 0) return 0;
+		if(!neighbors || neighbors.length == 0) return [0,0];
 		var id_min = -1;
 		var dis_min_square = this.rr;
 		for(var i=0;i<neighbors.length;i++) {
@@ -63,7 +64,7 @@ function point_2D(type, posX, posY, r){
 				id_min = id;
 			}
 		}
-		if(id_min == -1) return 0;
+		if(id_min == -1) return [0,0];
 		neighbors = this.neighbor_list(this.px[id_min], this.py[id_min]);
 		var mm = [[0,0,0,0,0],
 				  [0,0,0,0,0],
@@ -95,7 +96,7 @@ function point_2D(type, posX, posY, r){
 			var mini = [[mm[0][0], mm[0][1]], [mm[1][0], mm[1][1]]];
 			var tmp = matrix_invert(mini);
 			if(!tmp){
-				return 0;
+				return [0,0];
 			}
 			else{
 				inv = [[tmp[0][0],tmp[0][1],0,0,0],

@@ -19,9 +19,41 @@
 		<hr>
 		<form action="" target="_self">
 			{% csrf_token %}
-			{{ form_sl.as_table }}
-			<input class="w3-input w3-border" type="number" value="1" id="para" min="0" max="6" required><br>
-			<p><button class="w3-button w3-block w3-green" type="submit" method="post"> Render</button></p>
+			<div>
+				{{ form_sl.radius.label }}
+				{{ form_sl.radius }}
+			</div>
+			<div>
+				{{ form_sl.nlines.label }}
+				{{ form_sl.nlines }}
+			</div>
+			<div>
+				{{ form_sl.slen.label }}
+				{{ form_sl.slen }}
+			</div>
+			<div>
+				{{ form_sl.rsln.label }}
+				{{ form_sl.rsln }}
+			</div>
+			<br>
+			<div class="w3-half">
+				{{ form_sl.p1x.label }}
+				{{ form_sl.p1x }}				
+			</div>
+			<div class="w3-half">
+				{{ form_sl.p2x.label }}
+				{{ form_sl.p2x }}
+			</div>
+			<div class="w3-half">
+				{{ form_sl.p1y.label }}
+				{{ form_sl.p1y }}				
+			</div>
+			<div class="w3-half">
+				{{ form_sl.p2y.label }}
+				{{ form_sl.p2y }}
+			</div>
+			<br>
+			<input type="checkbox" id="mode" data-toggle="toggle" data-width="225" data-onstyle="primary" data-offstyle="success" data-on="Streamline mode" data-off="Point mode">
 		</form>
 		<hr>
 	</div>
@@ -112,10 +144,10 @@
 		evt.preventDefault();
 		var output = [];
 		var f = evt.dataTransfer.files[0];
-		output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
-					f.size, ' bytes, last modified: ',
-					f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
-					'</li>');
+		<!-- output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ', -->
+					<!-- f.size, ' bytes, last modified: ', -->
+					<!-- f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a', -->
+					<!-- '</li>'); -->
 		document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
 		
 		// Reset progress indicator on new file selection.
@@ -126,6 +158,7 @@
 		reader.onprogress = updateProgress;
 		reader.onloadstart = function(e){
 			document.getElementById('progress_bar').className = 'loading';
+			$('#mode').bootstrapToggle('off');
 		};
 		reader.onload = function(e){
 			// Ensure that the progress bar displays 100% at the end.
