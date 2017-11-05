@@ -406,7 +406,7 @@ $('#p2y').change(function(){
 
 //mode selection
 $('#mode').change(function(){
-	if( $('#mode').prop('checked') ){
+	if( $('#streamline').attr('checked') ){
 		mode = dict.STREAMLINE_MODE;
 		streamline_drawer.setupStreamline();
 		render_2D();

@@ -5,19 +5,21 @@ class BasicViewForm(forms.Form):
     );
     selected_scalar = forms.ChoiceField(widget=forms.Select(attrs={
                                             'id':'selected_scalar',
-                                            'class':'w3-input w3-border',}),
+                                            'class':'form-control form-control-sm',}),
                                         label='The column you wish to render: ',
                                         label_suffix='',
                                         choices=CHOICES,);
     range_max = forms.FloatField(widget=forms.NumberInput(attrs={
-                                    'id':'range_max',
-                                    'class':'w3-input w3-border',}),
+                                     'id':'range_max',
+                                     'class':'form-control form-control-sm',
+                                     'placeholder':'Max (mapping to red)',}),
                                  label='Max (mapping to red): ',
                                  label_suffix='',
                                  initial=1.0);
     range_min = forms.FloatField(widget=forms.NumberInput(attrs={
                                     'id':'range_min',
-                                    'class':'w3-input w3-border',}),
+                                    'class':'form-control form-control-sm',
+                                    'placeholder':'Min (mapping to blue)',}),
                                  label='Min (mapping to blue): ',
                                  label_suffix='',
                                  initial=0.0);
@@ -35,7 +37,8 @@ class BasicViewForm(forms.Form):
 class StreamlineForm(forms.Form):
     radius = forms.FloatField(widget=forms.NumberInput(attrs={
                                   'id':'radius',
-                                  'class':'w3-input w3-border',}),
+                                  'class':'form-control form-control-sm',
+                                  'placeholder':'Effective Radius',}),
                               label='Effective radius: ',
                               label_suffix='',
                               initial=0.06,
@@ -43,7 +46,7 @@ class StreamlineForm(forms.Form):
                               max_value=5);
     nlines = forms.IntegerField(widget=forms.NumberInput(attrs={
                                    'id':'nlines',
-                                   'class':'w3-input w3-border',}),
+                                   'class':'form-control form-control-sm',}),
                                 label='Number of streamlines: ',
                                 label_suffix='',
                                 initial=10,
@@ -51,7 +54,7 @@ class StreamlineForm(forms.Form):
                                 max_value=30);
     slen = forms.FloatField(widget=forms.NumberInput(attrs={
                                 'id':'slen',
-                                'class':'w3-input w3-border',}),
+                                'class':'form-control form-control-sm',}),
                             label='Length of streamlines: ',
                             label_suffix='',
                             initial=1,
@@ -59,7 +62,7 @@ class StreamlineForm(forms.Form):
                             max_value=1000);
     rsln = forms.FloatField(widget=forms.NumberInput(attrs={
                                 'id':'rsln',
-                                'class':'w3-input w3-border',}),
+                                'class':'form-control form-control-sm',}),
                             label='Integration step size: ',
                             label_suffix='',
                             initial=0.01,
@@ -67,25 +70,25 @@ class StreamlineForm(forms.Form):
                             max_value=1);
     p1x = forms.FloatField(widget=forms.NumberInput(attrs={
                                'id':'p1x',
-                               'style':'width:45%',}),
+                               'class':'form-control form-control-sm',}),
                            label='start x: ',
                            label_suffix='',
                            initial=0.0);
     p1y = forms.FloatField(widget=forms.NumberInput(attrs={
                                'id':'p1y',
-                               'style':'width:45%',}),
+                               'class':'form-control form-control-sm',}),
                            label='start y: ',
                            label_suffix='',
                            initial=0.0);
     p2x = forms.FloatField(widget=forms.NumberInput(attrs={
                                'id':'p2x',
-                               'style':'width:45%',}),
+                               'class':'form-control form-control-sm',}),
                            label='stop x: ',
                            label_suffix='',
                            initial=1.0);
     p2y = forms.FloatField(widget=forms.NumberInput(attrs={
                                'id':'p2y',
-                               'style':'width:45%',}),
+                               'class':'form-control form-control-sm',}),
                            label='stop y: ',
                            label_suffix='',
                            initial=1.0);
