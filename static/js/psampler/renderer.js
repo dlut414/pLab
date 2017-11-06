@@ -406,13 +406,26 @@ $('#p2y').change(function(){
 
 //mode selection
 $('#mode').change(function(){
-	if( $('#streamline').is(':checked') ){
-		mode = dict.STREAMLINE_MODE;
-		streamline_drawer.setupStreamline();
-		render_2D();
-	}
-	else if ( $('#point').is(':checked') ){
+	var form_pt = $('#form-point');
+	var form_sl = $('#form-streamline');
+	if ( $('#radio-pt').is(':checked') ){
+		form_pt.show('fast');
+		form_sl.hide('fast');
 		mode = dict.POINT_MODE;
 		render_2D();
 	}
+	else if( $('#radio-sl').is(':checked') ){
+		form_sl.show('fast');
+		form_pt.hide('fast');
+		mode = dict.STREAMLINE_MODE;
+		//use submit button to render streamline
+		// streamline_drawer.setupStreamline();
+		// render_2D();
+	}
+});
+
+//render button
+$('#button-render').click(function(){
+	streamline_drawer.setupStreamline();
+	render_2D();
 });

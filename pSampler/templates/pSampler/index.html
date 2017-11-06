@@ -13,14 +13,14 @@
 		</div>
 		<div id="progress_bar"><div class="percent">0%</div></div>
 		<output id="list"></output>
-		<form action"" target="_self">
+		<form action"" target="_self" id="form-point">
 			<div class="form-group">
 				{% csrf_token %}
 				{{ form }}
 			</div>
 		</form>
 		<hr>
-		<form action="" target="_self">
+		<form action="" target="_self" id="form-streamline" style="display:none">
 			{% csrf_token %}
 			<div>
 				{{ form_sl.radius.label }}
@@ -60,12 +60,14 @@
 				</div>
 			</div>
 			<br>
-			<div id="mode" class="row">
-				<input class="col" type="radio" name="option" id="point" checked> Point
-				<input class="col" type="radio" name="option" id="streamline"> Streamline
-			</div>
-			</div>
+			<input type="button" value="Render" class="btn btn-primary btn-sm" id="button-render">
 		</form>
+		<hr>
+		<div id="mode" class="row">
+			<input class="col" type="radio" name="option" id="radio-pt" checked> Point
+			<input class="col" type="radio" name="option" id="radio-sl"> Streamline
+		</div>
+		</div>
 		<hr>
 	</div>
 	</div>
@@ -162,7 +164,10 @@
 		reader.onprogress = updateProgress;
 		reader.onloadstart = function(e){
 			document.getElementById('progress_bar').className = 'loading';
-			$('#point').prop('checked');
+			$('#radio-pt').prop('checked', true);
+			$('#form-point').show('fast');
+			$('#form-streamline').hide('fast');
+			mode = dict.POINT_MODE;
 		};
 		reader.onload = function(e){
 			// Ensure that the progress bar displays 100% at the end.
