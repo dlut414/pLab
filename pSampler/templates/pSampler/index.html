@@ -1,78 +1,77 @@
 {%extends "base.html"%}
 {%block title%}<title>{{app_name}}</title>{%endblock%}
 {%block content%}
-<div>
+<div class="container">
 	<!-- Sidebar/menu -->
-	<div class="w3-sidebar w3-light-grey" style="z-index:3;width:260px" id="mySidebar">
-	<div class="w3-container w3-display-container w3-padding-16">
-		<h3>{{app_name}}</h3>
-		<hr>
-		<div id="drop_zone">
-			<p>Drop a geometry file here</p>
-			<p><i> See FORMAT in 'Extra Info'</i></p>
-		</div>
-		<div id="progress_bar"><div class="percent">0%</div></div>
-		<output id="list"></output>
-		<form action"" target="_self" id="form-point">
-			<div class="form-group">
+	<div class="w3-sidebar w3-light-grey" style="z-index:3;width:260px;" id="mySidebar">
+		<div class="w3-container w3-display-container w3-padding-16">
+			<h3>{{app_name}}</h3>
+			<hr>
+			<div id="drop_zone">
+				<p>Drop a geometry file here</p>
+				<p><i> See FORMAT in 'Extra Info'</i></p>
+			</div>
+			<div id="progress_bar"><div class="percent">0%</div></div>
+			<output id="list"></output>
+			<form action"" target="_self" id="form-point">
+				<div class="form-group">
+					{% csrf_token %}
+					{{ form }}
+				</div>
+			</form>
+			<hr>
+			<form action="" target="_self" id="form-streamline" style="display:none">
 				{% csrf_token %}
-				{{ form }}
-			</div>
-		</form>
-		<hr>
-		<form action="" target="_self" id="form-streamline" style="display:none">
-			{% csrf_token %}
-			<div>
-				{{ form_sl.radius.label }}
-				{{ form_sl.radius }}
-			</div>
-			<div>
-				{{ form_sl.nlines.label }}
-				{{ form_sl.nlines }}
-			</div>
-			<div>
-				{{ form_sl.slen.label }}
-				{{ form_sl.slen }}
-			</div>
-			<div>
-				{{ form_sl.rsln.label }}
-				{{ form_sl.rsln }}
-			</div>
-			<br>
-			<div class="row">
-				<div class="col">
-					{{ form_sl.p1x.label }}
-					{{ form_sl.p1x }}				
+				<div>
+					{{ form_sl.radius.label }}
+					{{ form_sl.radius }}
 				</div>
-				<div class="col">
-					{{ form_sl.p2x.label }}
-					{{ form_sl.p2x }}
+				<div>
+					{{ form_sl.nlines.label }}
+					{{ form_sl.nlines }}
 				</div>
+				<div>
+					{{ form_sl.slen.label }}
+					{{ form_sl.slen }}
+				</div>
+				<div>
+					{{ form_sl.rsln.label }}
+					{{ form_sl.rsln }}
+				</div>
+				<br>
+				<div class="row">
+					<div class="col">
+						{{ form_sl.p1x.label }}
+						{{ form_sl.p1x }}				
+					</div>
+					<div class="col">
+						{{ form_sl.p2x.label }}
+						{{ form_sl.p2x }}
+					</div>
+				</div>
+				<div class="row">
+					<div class="col">
+						{{ form_sl.p1y.label }}
+						{{ form_sl.p1y }}				
+					</div>
+					<div class="col">
+						{{ form_sl.p2y.label }}
+						{{ form_sl.p2y }}
+					</div>
+				</div>
+				<br>
+				<input type="button" value="Render" class="btn btn-primary btn-sm" id="button-render">
+			</form>
+			<hr>
+			<div id="mode" class="row">
+				<input class="col" type="radio" name="option" id="radio-pt" checked> Point
+				<input class="col" type="radio" name="option" id="radio-sl"> Streamline
 			</div>
-			<div class="row">
-				<div class="col">
-					{{ form_sl.p1y.label }}
-					{{ form_sl.p1y }}				
-				</div>
-				<div class="col">
-					{{ form_sl.p2y.label }}
-					{{ form_sl.p2y }}
-				</div>
-			</div>
-			<br>
-			<input type="button" value="Render" class="btn btn-primary btn-sm" id="button-render">
-		</form>
-		<hr>
-		<div id="mode" class="row">
-			<input class="col" type="radio" name="option" id="radio-pt" checked> Point
-			<input class="col" type="radio" name="option" id="radio-sl"> Streamline
+			<hr>
 		</div>
-		</div>
-		<hr>
-	</div>
 	</div>
 
-	<div style="margin-left:260px"> 
+	<div class="container" style="margin-left:260px;"> 
 		<div class="container">
 			<div>
 				<canvas id="canvas" width="800" height="500" class="w3-border">Your browser doesn't support WebGL!</canvas>
