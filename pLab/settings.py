@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Classifier.apps.ClassifierConfig',
     'pSampler.apps.PsamplerConfig',
+    'pFlow.apps.PflowConfig',
 ]
 
 MIDDLEWARE = [
