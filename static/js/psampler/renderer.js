@@ -260,6 +260,7 @@ function streamline_2D(){
 	this.program = setupShader_2D(source_sl_vertex, source_sl_fragment);
 	this.setupStreamline = function(){
 		this.point = new pointCloud_2D(data[0], data[1], data[2], this.radius);
+		this.linex = [], this.liney = [];
 		var linex = [], liney = [];
 		var dx = (this.p2[0] - this.p1[0]) / (this.nlines + 1);
 		var dy = (this.p2[1] - this.p1[1]) / (this.nlines + 1);
