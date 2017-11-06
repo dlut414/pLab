@@ -146,6 +146,11 @@ function setupCanvas_2D(){
 }
 
 function setupData_2D(result){
+	//clear existing global data
+	pos_avg = new Float32Array(2);
+	pos_max = new Float32Array(2);
+	pos_min = new Float32Array(2);
+	data = [];
 	var lines = result.split(/(?:\n)+|(?:\r\n)+/);
 	if(lines[lines.length-1] == '') lines.splice(lines.length-1, 1);
 	var n_cols = lines[0].split(' ').length;
@@ -153,9 +158,6 @@ function setupData_2D(result){
 		$('#selected_scalar').append('<option value=' + String(i) + '>' + String(i) + '</option>');
 		data.push(new Float32Array(lines.length));
 	}
-	pos_avg = new Float32Array(2);
-	pos_max = new Float32Array(2);
-	pos_min = new Float32Array(2);
 	for(var i=0;i<lines.length;i++){
 		var line = lines[i].split(' ');
 		var type = Number(line[0]);

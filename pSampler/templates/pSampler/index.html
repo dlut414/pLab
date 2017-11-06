@@ -1,10 +1,10 @@
 {%extends "base.html"%}
 {%block title%}<title>{{app_name}}</title>{%endblock%}
 {%block content%}
-<!-- Sidebar/menu -->
 <div>
+	<!-- Sidebar/menu -->
 	<div class="w3-sidebar w3-light-grey" style="z-index:3;width:260px" id="mySidebar">
-	<div class="w3-container w3-display-container w3-padding-64">
+	<div class="w3-container w3-display-container w3-padding-16">
 		<h3>{{app_name}}</h3>
 		<hr>
 		<div id="drop_zone">
@@ -80,7 +80,10 @@
 			<hr>
 
 			<h4><strong>Extra Info</strong></h4>
-			<p>Draw streamline or other quantities for point cloud datasets. Only available for 2D now.</p>
+			<p>
+				Draw streamline or other quantities for point cloud datasets. Only available for 2D now.<br>
+				Try something! You won't break it!
+			</p>
 			<hr>
 			Input file <i>FORMAT</i> (text file only):<br>
 			<strong><i>Type X Y VX VY Scalar0 Scalar1 Scalar2 ...</i></strong>(add as many columns of scalars as you like)<br>
