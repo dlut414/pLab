@@ -406,12 +406,12 @@ $('#p2y').change(function(){
 
 //mode selection
 $('#mode').change(function(){
-	if( $('#streamline').attr('checked') ){
+	if( $('#streamline').is(':checked') ){
 		mode = dict.STREAMLINE_MODE;
 		streamline_drawer.setupStreamline();
 		render_2D();
 	}
-	else {
+	else if ( $('#point').is(':checked') ){
 		mode = dict.POINT_MODE;
 		render_2D();
 	}
