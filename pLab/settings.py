@@ -27,7 +27,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '0wc3i+xw3bv0u=ln#(c67+!gsx$x=k
 # DEBUG = True
 DEBUG = bool( os.environ.get('DJANGO_DEBUG', True) )
 
-ALLOWED_HOSTS = ['pointlab.herokuapp.com', 'localhost']
+ALLOWED_HOSTS = ['pointlab-test.herokuapp.com', 'pointlab.herokuapp.com', 'localhost']
 
 
 # Application definition
