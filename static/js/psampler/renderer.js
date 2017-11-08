@@ -153,13 +153,13 @@ function setupData_2D(result){
 	data = [];
 	var lines = result.split(/(?:\n)+|(?:\r\n)+/);
 	if(lines[lines.length-1] == '') lines.splice(lines.length-1, 1);
-	var n_cols = lines[0].split(' ').length;
+	var n_cols = lines[0].split(/(?:\s)+/).length;
 	for(var i=0;i<n_cols;i++) {
 		$('#selected_scalar').append('<option value=' + String(i) + '>' + String(i) + '</option>');
 		data.push(new Float32Array(lines.length));
 	}
 	for(var i=0;i<lines.length;i++){
-		var line = lines[i].split(' ');
+		var line = lines[i].split(/(?:\s)+/);
 		var type = Number(line[0]);
 		var x = Number(line[1]), y = Number(line[2]);
 		var vx = Number(line[3]), vy = Number(line[4]);
