@@ -50,9 +50,10 @@ function setupShader_2D(source_vertex, source_fragment) {
 	}
 	return program;
 }
-function setupCanvas_2D() {
-	gl = canvas.getContext('webgl');
-	if (!gl) return null;
+
+function setupCanvas_2D(){
+	gl = canvas.getContext('experimental-webgl');
+	if(!gl) return null;
 	gl.enable(gl.CULL_FACE);
 	gl.frontFace(gl.CCW);
 	gl.enable(gl.DEPTH_TEST);
