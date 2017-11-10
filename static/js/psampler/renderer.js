@@ -16,8 +16,10 @@ var pan;
 var scale;
 var mouse_down = false;
 var canvas_size;
-// var source_vertex = document.getElementById('vertex-shader').innerHTML;
-// var source_fragment = document.getElementById('vertex-shader').innerHTML;
+// var source_point_vertex = document.getElementById('point-vertex-shader').innerHTML;
+// var source_point_fragment = document.getElementById('point-fragment-shader').innerHTML;
+// var source_sl_vertex = document.getElementById('sl-vertex-shader').innerHTML;
+// var source_sl_fragment = document.getElementById('sl-fragment-shader').innerHTML;
 var source_point_vertex = `
 	#version 100
 	precision mediump float;

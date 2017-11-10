@@ -105,40 +105,43 @@
 	<!-- End page content -->
 </div>
 {% load static %}
-<!-- <script id="vertex-shader" type="x-shader/x-vertex" src="{% static 'js/psampler/vertex-shader.glsl' %}"></script> -->
-<!-- <script id="fragment-shader" type="x-shader/x-fragment" src="{% static 'js/psampler/fragment-shader.glsl' %}"></script> -->
-<script type="text/javascript" src="{% static 'js/interpolator.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/psampler/renderer.js' %}"></script>
-<script type="text/javascript">
-	if(window.File && window.FileReader && window.FileList && window.Blob){
+<!-- <script id="point-vertex-shader" type="x-shader/x-vertex" src="{% static 'js/psampler/point-vertex-shader.glsl' %}"></script> -->
+<!-- <script id="point-fragment-shader" type="x-shader/x-fragment" src="{% static 'js/psampler/point-fragment-shader.glsl' %}"></script> -->
+<!-- <script id="sl-vertex-shader" type="x-shader/x-vertex" src="{% static 'js/psampler/sl-vertex-shader.glsl' %}"></script> -->
+<!-- <script id="sl-fragment-shader" type="x-shader/x-fragment" src="{% static 'js/psampler/sl-fragment-shader.glsl' %}"></script> -->
+<script src="{% static 'js/interpolator.js' %}"></script>
+<script src="{% static 'js/psampler/renderer.js' %}"></script>
+<script>
+	'use strict';
+
+	if (window.File && window.FileReader && window.FileList && window.Blob) {
 		//All the File APIs are supported.
-	}
-	else{
+	} else {
 		alert('The functions are not fully supported in this browser.');
 	}
-	
+
 	var reader;
 	var progress = document.querySelector('.percent');
-	
-    function errorHandler(evt) {
-		switch(evt.target.error.code) {
-		    case evt.target.error.NOT_FOUND_ERR:
+
+	function errorHandler(evt) {
+		switch (evt.target.error.code) {
+			case evt.target.error.NOT_FOUND_ERR:
 				alert('File Not Found!');
 				break;
-		    case evt.target.error.NOT_READABLE_ERR:
+			case evt.target.error.NOT_READABLE_ERR:
 				alert('File is not readable');
 				break;
-		    case evt.target.error.ABORT_ERR:
+			case evt.target.error.ABORT_ERR:
 				break; // noop
-		    default:
+			default:
 				alert('An error occurred reading this file.');
 		};
 	}
-	
+
 	function updateProgress(evt) {
 		// evt is an ProgressEvent.
 		if (evt.lengthComputable) {
-			var percentLoaded = Math.round((evt.loaded / evt.total) * 100);
+			var percentLoaded = Math.round(evt.loaded / evt.total * 100);
 			// Increase the progress bar length.
 			if (percentLoaded < 100) {
 				progress.style.width = percentLoaded + '%';
@@ -146,48 +149,44 @@
 			}
 		}
 	}
-  
-	function handleFileSelect(evt){
+
+	function handleFileSelect(evt) {
 		evt.stopPropagation();
 		evt.preventDefault();
 		var output = [];
 		var f = evt.dataTransfer.files[0];
-		output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
-					f.size, ' bytes, last modified: ',
-					f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
-					'</li>');
+		output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ', f.size, ' bytes, last modified: ', f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a', '</li>');
 		document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
-		
+
 		// Reset progress indicator on new file selection.
 		progress.style.width = '0%';
 		progress.textContent = '0%';
 		reader = new FileReader();
 		reader.onerror = errorHandler;
 		reader.onprogress = updateProgress;
-		reader.onloadstart = function(e){
+		reader.onloadstart = function (e) {
 			document.getElementById('progress_bar').className = 'loading';
 			$('#radio-pt').prop('checked', true);
 			$('#form-point').show('fast');
 			$('#form-streamline').hide('fast');
 			mode = dict.POINT_MODE;
 		};
-		reader.onload = function(e){
+		reader.onload = function (e) {
 			// Ensure that the progress bar displays 100% at the end.
 			progress.style.width = '100%';
 			progress.textContent = '100%';
 		};
-		reader.onloadend = function(e){
-			if(reader.readyState == FileReader.DONE) {
+		reader.onloadend = function (e) {
+			if (reader.readyState == FileReader.DONE) {
 				setupData_2D(reader.result);
 				render_2D();
-			}
-			else{
+			} else {
 				alert('Reading file failed!');
 			}
 		};
 		reader.readAsText(f);
 	}
-	function handleDragOver(evt){
+	function handleDragOver(evt) {
 		evt.stopPropagation();
 		evt.preventDefault();
 		evt.dataTransfer.dropEffect = 'copy';
