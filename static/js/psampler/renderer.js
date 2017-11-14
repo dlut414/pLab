@@ -295,6 +295,14 @@ function streamline_2D(){
 			this.linex.push(new Float32Array(linex[i]));
 			this.liney.push(new Float32Array(liney[i]));
 		}
+		//push dummy points into another array
+		var dummyX = [], dummyY = [];
+		for(var i=0;i<data[0].length;i++){
+			if(data[0][i] == 0){
+				dummyX.push(data[1][i]), dummyY.push(data[2][i]);
+			}
+		}
+		this.dummyX = new Float32Array(dummyX), this.dummyY = new Float32Array(dummyY);
 	};
 	this.draw = function(){
 		if( !gl ) {
@@ -304,7 +312,7 @@ function streamline_2D(){
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		
 		gl.useProgram(this.program);
-		var vbo_linex = gl.createBuffer(), vbo_liney = gl.createBuffer();
+		var vboX = gl.createBuffer(), vboY = gl.createBuffer();
 
 		gl.uniform2fv(gl.getUniformLocation(this.program, 'pos_avg'), pos_avg);
 		gl.uniform2fv(gl.getUniformLocation(this.program, 'pos_max'), pos_max);
@@ -313,13 +321,13 @@ function streamline_2D(){
 		gl.uniform2fv(gl.getUniformLocation(this.program, 'pan'), pan);
 		gl.uniform1f(gl.getUniformLocation(this.program, 'scale'), scale);
 		for(var i=0;i<this.linex.length && i<this.liney.length;i++){
-			gl.bindBuffer(gl.ARRAY_BUFFER, vbo_linex);
+			gl.bindBuffer(gl.ARRAY_BUFFER, vboX);
 			gl.bufferData(gl.ARRAY_BUFFER, this.linex[i], gl.STATIC_DRAW);
 			var x_loc = gl.getAttribLocation(this.program, 'x');
 			gl.enableVertexAttribArray(x_loc);
 			gl.vertexAttribPointer(x_loc, 1, gl.FLOAT, false, 0, 0);
 			
-			gl.bindBuffer(gl.ARRAY_BUFFER, vbo_liney);
+			gl.bindBuffer(gl.ARRAY_BUFFER, vboY);
 			gl.bufferData(gl.ARRAY_BUFFER, this.liney[i], gl.STATIC_DRAW);
 			var y_loc = gl.getAttribLocation(this.program, 'y');
 			gl.enableVertexAttribArray(y_loc);
@@ -330,6 +338,23 @@ function streamline_2D(){
 			gl.disableVertexAttribArray(x_loc);
 			gl.disableVertexAttribArray(y_loc);
 		}
+		//draw dummy points as points
+		gl.bindBuffer(gl.ARRAY_BUFFER, vboX);
+		gl.bufferData(gl.ARRAY_BUFFER, this.dummyX, gl.STATIC_DRAW);
+		var x_loc = gl.getAttribLocation(this.program, 'x');
+		gl.enableVertexAttribArray(x_loc);
+		gl.vertexAttribPointer(x_loc, 1, gl.FLOAT, false, 0, 0);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, vboY);
+		gl.bufferData(gl.ARRAY_BUFFER, this.dummyY, gl.STATIC_DRAW);
+		var x_loc = gl.getAttribLocation(this.program, 'y');
+		gl.enableVertexAttribArray(y_loc);
+		gl.vertexAttribPointer(y_loc, 1, gl.FLOAT, false, 0, 0);
+		
+		gl.drawArrays(gl.POINTS, 0, this.dummyX.length);
+		
+		gl.disableVertexAttribArray(x_loc);
+		gl.disableVertexAttribArray(y_loc);
 	};
 	return this;
 }
