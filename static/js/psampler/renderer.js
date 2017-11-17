@@ -16,6 +16,7 @@ var pan;
 var scale;
 var mouse_down = false;
 var canvas_size;
+var mousePos = [0, 0];
 // var source_point_vertex = document.getElementById('point-vertex-shader').innerHTML;
 // var source_point_fragment = document.getElementById('point-fragment-shader').innerHTML;
 // var source_sl_vertex = document.getElementById('sl-vertex-shader').innerHTML;
@@ -36,6 +37,7 @@ var source_point_vertex = `
 	attribute float s;
 	varying float v_type;
 	varying float v_s;
+	const float pointSize = 1.0;
 	void main() {
 		v_type = type;
 		v_s = s;
@@ -44,8 +46,9 @@ var source_point_vertex = `
 		pos.x = pos.x / canvas_size.x * canvas_size.y;
 		pos = scale* pos;
 		pos = pos + pan;
+		float scaled_pointSize = scale* pointSize;
 		gl_Position = vec4(pos, 0.0, 1.0);
-		gl_PointSize = 0.3* scale* 1.0;
+		gl_PointSize = 0.3* scaled_pointSize;
 	}
 `;
 var source_point_fragment = `
