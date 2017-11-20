@@ -419,7 +419,7 @@ function colorPick(){
 		gl.flush();
 		gl.finish();
 		gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-		pixels = new Uint8Array(4);
+		var pixels = new Uint8Array(4);
 		gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
 		return pixels[0] + (pixels[1] << 8) + (pixels[2] << 16);
 	};
