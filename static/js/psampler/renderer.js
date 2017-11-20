@@ -442,8 +442,27 @@ $('#canvas').mouseup(function(e){
 	mouse_down = false;
 	if(mode == dict.POINT_MODE){
 		var p = colorPicker.pick(e.pageX - e.target.offsetLeft, canvas_size[1] - (e.pageY - e.target.offsetTop));
-		console.log(p);
-		point_drawer.draw();
+		//console.log(p);
+		var attribPanel = $('#attribPanel');
+		try{
+			attribPanel.html('<ul>' + 
+				'<li>' + 'type: ' + data[0][p] + '</li>' + 
+				'<li>' + 'x: ' + data[1][p].toFixed(4) + '  |  y: ' + data[2][p].toFixed(4) + '</li>' + 
+				'<li>' + 'vx: ' + data[2][p].toFixed(4) + '  |  vy: ' + data[3][p].toFixed(4) + '</li>' + 
+				'<li>' + 'scalar: ' + data[selected_col][p].toFixed(4) + '</li>' + '</ul>');
+			attribPanel.show('fast');
+		}
+		catch(e){
+			attribPanel.html('<ul>' + 
+				'<li>' + 'type: ' + data[0][p] + '</li>' + 
+				'<li>' + 'x: ' + data[1][p] + '  |  y: ' + data[2][p] + '</li>' + 
+				'<li>' + 'vx: ' + data[2][p] + '  |  vy: ' + data[3][p] + '</li>' + 
+				'<li>' + 'scalar: ' + data[selected_col][p] + '</li>' + '</ul>');
+			attribPanel.show('fast');			
+		}
+		finally{
+			point_drawer.draw();
+		}
 	}
 });
 $('#canvas').mousemove(function(e){
@@ -519,8 +538,9 @@ $('#mode').change(function(){
 	else if( $('#radio-sl').is(':checked') ){
 		form_sl.show('fast');
 		form_pt.hide('fast');
+		$('#attribPanel').hide('fast');
 		mode = dict.STREAMLINE_MODE;
-		//use submit button to render streamline
+		//use input button to render streamline
 		// streamline_drawer.setupStreamline();
 		// render_2D();
 	}
