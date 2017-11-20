@@ -7,7 +7,7 @@ var EPS = 0.0001;
 var canvas = document.getElementById('canvas');
 var gl;
 var mode = dict.POINT_MODE;
-var point_drawer, streamline_drawer;
+var point_drawer, streamline_drawer, colorPicker;
 var data = [];
 var selected_col = 0;
 var range_max = 1.0, range_min = 0.0;
@@ -21,6 +21,14 @@ var mousePos = [0, 0];
 // var source_point_fragment = document.getElementById('point-fragment-shader').innerHTML;
 // var source_sl_vertex = document.getElementById('sl-vertex-shader').innerHTML;
 // var source_sl_fragment = document.getElementById('sl-fragment-shader').innerHTML;
+var source_colorPick_fragment = `
+	#version 100
+	precision mediump float;
+	uniform vec3 color;
+	void main() {
+		gl_FragColor = vec4(color, 1.0);
+	}
+`;
 var source_point_vertex = `
 	#version 100
 	precision mediump float;
@@ -183,6 +191,7 @@ function setupData_2D(result){
 	scale = 1.0;
 	point_drawer = new point_2D();
 	streamline_drawer = new streamline_2D();
+	colorPicker = new colorPick();
 }
 
 function render_2D(){
@@ -362,6 +371,61 @@ function streamline_2D(){
 	return this;
 }
 
+//function of mouse point intersection (render id to color)
+function colorPick(){
+	this.program = setupShader_2D(source_point_vertex, source_colorPick_fragment);
+	this.pick = function(x, y){
+		if( !gl ) {
+			alert('WebGL not available!');
+			return;
+		}
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+		
+		gl.useProgram(this.program);
+		var vbo_type = gl.createBuffer();
+		var vbo_x = gl.createBuffer(), vbo_y = gl.createBuffer();
+
+		gl.uniform1f(gl.getUniformLocation(this.program, 'range_max'), range_max);
+		gl.uniform1f(gl.getUniformLocation(this.program, 'range_min'), range_min);
+		gl.uniform2fv(gl.getUniformLocation(this.program, 'pos_avg'), pos_avg);
+		gl.uniform2fv(gl.getUniformLocation(this.program, 'pos_max'), pos_max);
+		gl.uniform2fv(gl.getUniformLocation(this.program, 'pos_min'), pos_min);
+		gl.uniform2fv(gl.getUniformLocation(this.program, 'canvas_size'), canvas_size);
+		gl.uniform2fv(gl.getUniformLocation(this.program, 'pan'), pan);
+		gl.uniform1f(gl.getUniformLocation(this.program, 'scale'), scale);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, vbo_x);
+		gl.bufferData(gl.ARRAY_BUFFER, data[1], gl.STATIC_DRAW);
+		var x_loc = gl.getAttribLocation(this.program, 'x');
+		gl.enableVertexAttribArray(x_loc);
+		gl.vertexAttribPointer(x_loc, 1, gl.FLOAT, false, 0, 0);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, vbo_y);
+		gl.bufferData(gl.ARRAY_BUFFER, data[2], gl.STATIC_DRAW);
+		var y_loc = gl.getAttribLocation(this.program, 'y');
+		gl.enableVertexAttribArray(y_loc);
+		gl.vertexAttribPointer(y_loc, 1, gl.FLOAT, false, 0, 0);
+		
+		for(var p=0;p<data[0].length;p++){
+			var r = ((p & 0x000000FF) >> 0) / 255.0;
+			var g = ((p & 0x0000FF00) >> 8) / 255.0;
+			var b = ((p & 0x00FF0000) >> 16) / 255.0;
+			gl.uniform3fv(gl.getUniformLocation(this.program, 'color'), [r,g,b]);
+			gl.drawArrays(gl.POINTS, p, 1);
+		}
+		
+		gl.disableVertexAttribArray(x_loc);
+		gl.disableVertexAttribArray(y_loc);
+		gl.flush();
+		gl.finish();
+		gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+		pixels = new Uint8Array(4);
+		gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+		return pixels[0] + (pixels[1] << 8) + (pixels[2] << 16);
+	};
+	return this;
+}
+
 //add mouse control using jQuery
 function coordInCanvas(evt){
 	var x_pixel = evt.pageX - evt.target.offsetLeft;
@@ -376,6 +440,11 @@ $('#canvas').mousedown(function(e){
 });
 $('#canvas').mouseup(function(e){
 	mouse_down = false;
+	if(mode == dict.POINT_MODE){
+		var p = colorPicker.pick(e.pageX - e.target.offsetLeft, canvas_size[1] - (e.pageY - e.target.offsetTop));
+		console.log(p);
+		point_drawer.draw();
+	}
 });
 $('#canvas').mousemove(function(e){
 	if(mouse_down){
