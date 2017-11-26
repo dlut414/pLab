@@ -25,5 +25,6 @@ urlpatterns = [
     url(r'^$', RedirectView.as_view(url='/psampler/', permanent=True), name='default'),
     url(r'^psampler/', include('pSampler.urls'), name='psampler'),
     url(r'^pflow/', include('pFlow.urls'), name='pflow'),
+    url(r'^pmaker/', include('pMaker.urls'), name='pmaker'),
     url(r'^classifier/', include('Classifier.urls'), name='classifier'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT);
