@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'Classifier.apps.ClassifierConfig',
     'pSampler.apps.PsamplerConfig',
     'pFlow.apps.PflowConfig',
+    'pMaker.apps.PmakerConfig',
 ]
 
 MIDDLEWARE = [
