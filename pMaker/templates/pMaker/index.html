@@ -17,13 +17,17 @@
 				<div class="form-group">
 					{% csrf_token %}
 					<div class="row">
-						<div class="col-sm">
+						<div class="col">
 							{{ form.color1.label }}
 							{{ form.color1 }}
 						</div>
-						<div class="col-sm">
-							{{ form.type1.label }}
-							{{ form.type1 }}
+						<div class="col">
+							<div class="input-group">
+								{{ form.type1 }}
+								<span class="input-group-btn">
+									<button class="btn btn-default" type="button">GO</button>
+								</span>
+							</div>
 						</div>
 					</div>
 					<div class="row">
