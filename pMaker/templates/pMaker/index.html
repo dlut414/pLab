@@ -1,34 +1,161 @@
 {%extends "base.html"%}
 {%block title%}<title>{{app_name}}</title>{%endblock%}
 {%block content%}
+<div class="container">
+	<!-- Sidebar/menu -->
+	<div class="w3-sidebar w3-light-grey" style="z-index:3;width:260px;" id="mySidebar">
+		<div class="w3-container w3-display-container" style="padding-top:16px!important;padding-bottom:64px!important">
+			<h3>{{app_name}}</h3>
+			<hr>
+			<div id="drop_zone">
+				<p>Drop a bmp file here</p>
+				<p><i> Can be created by paint software in your system.</i></p>
+			</div>
+			<div id="progress_bar"><div class="percent">0%</div></div>
+			<output id="list"></output>
+			<form action="" target="_self" id="form">
+				<div class="form-group">
+					{% csrf_token %}
+					<div class="row">
+						<div class="col">
+							{{ form.color1.label }}
+							{{ form.color1 }}
+						</div>
+						<div class="col">
+							{{ form.type1.label }}
+							{{ form.type1 }}
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							{{ form.color2.label }}
+							{{ form.color2 }}
+						</div>
+						<div class="col">
+							{{ form.type2.label }}
+							{{ form.type2 }}
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							{{ form.color3.label }}
+							{{ form.color3 }}
+						</div>
+						<div class="col">
+							{{ form.type3.label }}
+							{{ form.type3 }}
+						</div>
+					</div>
+				</div>
+				<input type="button" value="Save" class="btn btn-primary btn-sm" id="button-save">
+			</form>
+			<hr>
+		</div>
+	</div>
+	<!-- !PAGE CONTENT! -->
+	<div class="w3-main w3-white" style="margin-left:260px">
 
-Under construction!
-<!-- Sidebar/menu -->
+		<div class="w3-container">
+			<div>
+			
+			</div>
+			<hr>
+		</div>
+		
+		<h4><strong>Extra Info</strong></h4>
 
-<!-- !PAGE CONTENT! -->
-<div class="w3-main w3-white" style="margin-left:260px">
-
-  <!-- Push down content on small screens -->
-  <div class="w3-hide-large" style="margin-top:80px"></div>
-
-  <div class="w3-container">
-    <div>
-	
-    </div>
-    <hr>
-    
-    
-    <h4><strong>Extra Info</strong></h4>
-
-  <!-- Contact -->
-  <div class="w3-container" id="contact">
-    <h4><strong>Contact</strong></h4>
-    <i class="fa fa-map-marker" style="width:30px"></i>Hu Fangyuan<br>
-	<i class="fa fa-map-marker" style="width:30px"></i>Koshizuka-Shibata-lab, the University of Tokyo<br>
-    <i class="fa fa-envelope" style="width:30px"> </i> Email: hfy8373_at_mps.q.t.u-tokyo.ac.jp<br>
-  <footer class="w3-container w3-padding-16" style="margin-top:32px">Powered by <a href="https://github.com/dlut414" target="_blank" class="w3-hover-text-green">dlut414</a></footer>
-  <footer class="w3-container w3-padding-16">css template from <a href="https://www.w3schools.com" target="_blank" class="w3-hover-text-green">w3schools</a> & <a href="http://getbootstrap.com/" target="_blank" class="w3-hover-text-green">bootstrap</a></footer>
-  </div>
-<!-- End page content -->
+		<!-- Contact -->
+		<div class="w3-container" id="contact">
+			<h4><strong>Contact</strong></h4>
+			<i class="fa fa-map-marker" style="width:30px"></i>Hu Fangyuan<br>
+			<i class="fa fa-map-marker" style="width:30px"></i>Koshizuka-Shibata-lab, the University of Tokyo<br>
+			<i class="fa fa-envelope" style="width:30px"> </i> Email: hfy8373_at_mps.q.t.u-tokyo.ac.jp<br>
+			<footer class="w3-container w3-padding-16" style="margin-top:32px">Powered by <a href="https://github.com/dlut414" target="_blank" class="w3-hover-text-green">dlut414</a></footer>
+			<footer class="w3-container w3-padding-16">css template from <a href="https://www.w3schools.com" target="_blank" class="w3-hover-text-green">w3schools</a> & <a href="http://getbootstrap.com/" target="_blank" class="w3-hover-text-green">bootstrap</a></footer>
+		</div>
+	<!-- End page content -->
+	</div>
 </div>
+{% load static %}
+<script src="{% static 'js/pmaker/setup.js' %}"></script>
+<script>
+	'use strict';
+
+	if (window.File && window.FileReader && window.FileList && window.Blob) {
+		//All the File APIs are supported.
+	} else {
+		alert('The functions are not fully supported in this browser.');
+	}
+
+	var reader;
+	var progress = document.querySelector('.percent');
+
+	function errorHandler(evt) {
+		switch (evt.target.error.code) {
+			case evt.target.error.NOT_FOUND_ERR:
+				alert('File Not Found!');
+				break;
+			case evt.target.error.NOT_READABLE_ERR:
+				alert('File is not readable');
+				break;
+			case evt.target.error.ABORT_ERR:
+				break; // noop
+			default:
+				alert('An error occurred reading this file.');
+		};
+	}
+
+	function updateProgress(evt) {
+		// evt is an ProgressEvent.
+		if (evt.lengthComputable) {
+			var percentLoaded = Math.round(evt.loaded / evt.total * 100);
+			// Increase the progress bar length.
+			if (percentLoaded < 100) {
+				progress.style.width = percentLoaded + '%';
+				progress.textContent = percentLoaded + '%';
+			}
+		}
+	}
+
+	function handleFileSelect(evt) {
+		evt.stopPropagation();
+		evt.preventDefault();
+		var output = [];
+		var f = evt.dataTransfer.files[0];
+		output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ', f.size, ' bytes, last modified: ', f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a', '</li>');
+		document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+
+		// Reset progress indicator on new file selection.
+		progress.style.width = '0%';
+		progress.textContent = '0%';
+		reader = new FileReader();
+		reader.onerror = errorHandler;
+		reader.onprogress = updateProgress;
+		reader.onloadstart = function (e) {
+			document.getElementById('progress_bar').className = 'loading';
+		};
+		reader.onload = function (e) {
+			// Ensure that the progress bar displays 100% at the end.
+			progress.style.width = '100%';
+			progress.textContent = '100%';
+		};
+		reader.onloadend = function (e) {
+			if (reader.readyState == FileReader.DONE) {
+				setup(reader.result);
+			}
+			else {
+				alert('Reading file failed!');
+			}
+		};
+		reader.readAsText(f);
+	}
+	function handleDragOver(evt) {
+		evt.stopPropagation();
+		evt.preventDefault();
+		evt.dataTransfer.dropEffect = 'copy';
+	}
+	var dropZone = document.getElementById('drop_zone');
+	dropZone.addEventListener('dragover', handleDragOver, false);
+	dropZone.addEventListener('drop', handleFileSelect, false);
+</script>
 {%endblock%}

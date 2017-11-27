@@ -478,7 +478,7 @@ $('#canvas').on('wheel', function(e){
 	e.stopPropagation();
 	e.preventDefault();
 	//e.originalEvent depends on the browser!
-	if(e.originalEvent.deltaY > 0){
+	if(e.originalEvent.deltaY < 0){
 		scale = scale*1.1;
 	}
 	else{
