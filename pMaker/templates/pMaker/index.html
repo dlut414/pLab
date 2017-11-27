@@ -17,11 +17,11 @@
 				<div class="form-group">
 					{% csrf_token %}
 					<div class="row">
-						<div class="col">
+						<div class="col-sm">
 							{{ form.color1.label }}
 							{{ form.color1 }}
 						</div>
-						<div class="col">
+						<div class="col-sm">
 							{{ form.type1.label }}
 							{{ form.type1 }}
 						</div>
@@ -46,6 +46,26 @@
 							{{ form.type3 }}
 						</div>
 					</div>
+					<div class="row">
+						<div class="col">
+							{{ form.color4.label }}
+							{{ form.color4 }}
+						</div>
+						<div class="col">
+							{{ form.type4.label }}
+							{{ form.type4 }}
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							{{ form.color5.label }}
+							{{ form.color5 }}
+						</div>
+						<div class="col">
+							{{ form.type5.label }}
+							{{ form.type5 }}
+						</div>
+					</div>
 				</div>
 				<input type="button" value="Save" class="btn btn-primary btn-sm" id="button-save">
 			</form>
@@ -54,16 +74,10 @@
 	</div>
 	<!-- !PAGE CONTENT! -->
 	<div class="w3-main w3-white" style="margin-left:260px">
-
-		<div class="w3-container">
-			<div>
-			
-			</div>
+		<div class="container">
 			<hr>
+			<h4><strong>Extra Info</strong></h4>
 		</div>
-		
-		<h4><strong>Extra Info</strong></h4>
-
 		<!-- Contact -->
 		<div class="w3-container" id="contact">
 			<h4><strong>Contact</strong></h4>
