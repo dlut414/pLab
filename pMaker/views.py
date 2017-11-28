@@ -5,7 +5,6 @@ from django.shortcuts import render
 
 # Create your views here.
 def index(request):
-    form = BasicViewForm();
     CONTEXT = {
         'app_name' : 'pMaker',
     };
