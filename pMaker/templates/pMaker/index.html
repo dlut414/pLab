@@ -14,60 +14,54 @@
 			<div id="progress_bar"><div class="percent">0%</div></div>
 			<output id="list"></output>
 			<form action="" target="_self" id="form">
+				<p>One color maps to one Type:</p>
 				<div class="form-group">
-					{% csrf_token %}
 					<div class="row">
 						<div class="col">
-							{{ form.color1.label }}
-							{{ form.color1 }}
+							<div class="input-group">
+								<input type="color" class="form-control form-control-sm" value="#FF0000">
+							</div>
 						</div>
+						<div class="col-3">-></div>
 						<div class="col">
 							<div class="input-group">
-								{{ form.type1 }}
+								<input class="form-control form-control-sm" placeholder="1">
 								<span class="input-group-btn">
-									<button class="btn btn-default" type="button">GO</button>
+									<button class="btn btn-default btn-sm btn-remove" type="button">-</button>
 								</span>
 							</div>
 						</div>
 					</div>
 					<div class="row">
 						<div class="col">
-							{{ form.color2.label }}
-							{{ form.color2 }}
+							<div class="input-group">
+								<input type="color" class="form-control form-control-sm" value="#00FF00">
+							</div>
 						</div>
+						<div class="col-3">-></div>
 						<div class="col">
-							{{ form.type2.label }}
-							{{ form.type2 }}
-						</div>
-					</div>
-					<div class="row">
-						<div class="col">
-							{{ form.color3.label }}
-							{{ form.color3 }}
-						</div>
-						<div class="col">
-							{{ form.type3.label }}
-							{{ form.type3 }}
+							<div class="input-group">
+								<input class="form-control form-control-sm" placeholder="2">
+								<span class="input-group-btn">
+									<button class="btn btn-default btn-sm btn-remove" type="button">-</button>
+								</span>
+							</div>
 						</div>
 					</div>
 					<div class="row">
 						<div class="col">
-							{{ form.color4.label }}
-							{{ form.color4 }}
+							<div class="input-group">
+								<input type="color" class="form-control form-control-sm" value="#0000FF">
+							</div>
 						</div>
+						<div class="col-3">-></div>
 						<div class="col">
-							{{ form.type4.label }}
-							{{ form.type4 }}
-						</div>
-					</div>
-					<div class="row">
-						<div class="col">
-							{{ form.color5.label }}
-							{{ form.color5 }}
-						</div>
-						<div class="col">
-							{{ form.type5.label }}
-							{{ form.type5 }}
+							<div class="input-group">
+								<input class="form-control form-control-sm" placeholder="3">
+								<span class="input-group-btn">
+									<button class="btn btn-default btn-sm btn-add" type="button">+</button>
+								</span>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -175,5 +169,21 @@
 	var dropZone = document.getElementById('drop_zone');
 	dropZone.addEventListener('dragover', handleDragOver, false);
 	dropZone.addEventListener('drop', handleFileSelect, false);
+	
+	//deal with add(+) and remove(-) rows
+	$(document).on('click', '.btn-remove', function(e){
+		$(this).parents('.row').remove();
+		e.preventDefault();
+		return false;
+	});
+	$(document).on('click', '.btn-add', function(e){
+		e.preventDefault();
+		var current = $(this).parents('.row');
+		$('.form-group').append( current.clone() );
+		$(this).removeClass('btn-add')
+				.addClass('btn-remove')
+				.html('-');
+		return false;
+	});
 </script>
 {%endblock%}
