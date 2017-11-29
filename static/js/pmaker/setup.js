@@ -11,17 +11,27 @@ function setup(result){
 			var r = dv.getUint8(3*j, true);
 			var g = dv.getUint8(3*j + 1, true);
 			var b = dv.getUint8(3*j + 2, true);
-			this.data.push(r), this.data.push(g), this.data.push(b);
+			var color = ((r|0) << 16) + ((g|0) << 8) + (b|0);
+			this.data.push(color.toString(16));
 		}
 	}
 }
-function make(color, type){
-	
+function make(color2type){
+	var output = "";
+	var dp = Number($('#point_distance').val());
+	for(var i=0;i<this.height;i++){
+		for(var j=0;j<this.width;j++){
+			var id = i* this.width + j;
+			if(!color2type.has(this.data[id])) continue;
+			var x = j* dp, y = i* dp;
+			output += color2type.get(this.data[id]) + ' ' + x + ' ' + y;
+		}
+	}
 }
 $('#button-save').click(function(){
 	var color = [], type = [];
 	$('.color').each(function(index){
-		color.push($(this).val());
+		color.push($(this).val().substr(-6));
 	});
 	$('.type').each(function(index){
 		type.push($(this).val());
@@ -30,5 +40,7 @@ $('#button-save').click(function(){
 		alert('Length of color is different from length of type');
 		return;
 	}
-	make(color, type);
+	this.color2type = new Map();
+	color.forEach( (key, i) => this.color2type.set(key, type[i]) );
+	make(this.color2type);
 });
