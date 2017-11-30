@@ -24,11 +24,11 @@ function make(color2type){
 			var id = i* this.width + j;
 			if(!color2type.has(this.data[id])) continue;
 			var x = j* dp, y = i* dp;
-			output += color2type.get(this.data[id]) + ' ' + x + ' ' + y + '\n';
+			output += color2type.get(this.data[id]) + '%20' + x.toExponential(6) + '%20' + y.toExponential(6) + '%0D%0A';
 		}
 	}
 	var element = document.createElement('a');
-	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(output));
+	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + output);
 	element.setAttribute('download', 'output.txt');
 	element.style.display = 'none';
 	document.body.appendChild(element);
