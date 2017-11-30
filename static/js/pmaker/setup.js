@@ -24,9 +24,16 @@ function make(color2type){
 			var id = i* this.width + j;
 			if(!color2type.has(this.data[id])) continue;
 			var x = j* dp, y = i* dp;
-			output += color2type.get(this.data[id]) + ' ' + x + ' ' + y;
+			output += color2type.get(this.data[id]) + ' ' + x + ' ' + y + '\n';
 		}
 	}
+	var element = document.createElement('a');
+	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(output));
+	element.setAttribute('download', 'output.txt');
+	element.style.display = 'none';
+	document.body.appendChild(element);
+	element.click();
+	document.body.removeChild(element);
 }
 $('#button-save').click(function(){
 	var color = [], type = [];
