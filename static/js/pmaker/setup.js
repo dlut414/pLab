@@ -16,15 +16,28 @@ function setup(result){
 		}
 	}
 }
-function make(color2type){
+function make(color2type, color2vel){
 	var output = "";
 	var dp = Number($('#point_distance').val());
 	for(var i=0;i<this.height;i++){
 		for(var j=0;j<this.width;j++){
 			var id = i* this.width + j;
 			if(!color2type.has(this.data[id])) continue;
+			var type = color2type.get(this.data[id]);
 			var x = j* dp, y = i* dp;
-			output += color2type.get(this.data[id]) + '%20' + x.toExponential(6) + '%20' + y.toExponential(6) + '%0D%0A';
+			var vx = 0, vy = 0;
+			if(!color2vel.has(this.data[id])) vx = vy = 0;
+			else{
+				vx = eval(color2vel.get(this.data[id])[0]);
+				vy = eval(color2vel.get(this.data[id])[1]);
+				vx = vx ? vx : 0;
+				vy = vy ? vy : 0;
+			}
+			var line = type + '%20' + x.toExponential(6) + '%20' + y.toExponential(6) + '%20'
+					+ vx.toExponential(6) + '%20' + vy.toExponential(6);
+			for(var p=0;p<$('#trailing_zero').val();p++) line += '%20' + 0;
+			line += '%0D%0A';
+			output += line;
 		}
 	}
 	var element = document.createElement('a');
@@ -36,6 +49,7 @@ function make(color2type){
 	document.body.removeChild(element);
 }
 $('#button-save').click(function(){
+	//color -> type
 	var color = [], type = [];
 	$('.color').each(function(index){
 		color.push($(this).val().substr(-6));
@@ -49,5 +63,18 @@ $('#button-save').click(function(){
 	}
 	this.color2type = new Map();
 	color.forEach( (key, i) => this.color2type.set(key, type[i]) );
-	make(this.color2type);
+	//color -> vx, vy
+	var color_vel = [], string_vx = [], string_vy = [];
+	$('.color-vel').each(function(index){
+		color_vel.push($(this).val().substr(-6));
+	});
+	$('.string-vx').each(function(index){
+		string_vx.push($(this).val());
+	});
+	$('.string-vy').each(function(index){
+		string_vy.push($(this).val());
+	});
+	this.color2vel = new Map();
+	color_vel.forEach( (key, i) => this.color2vel.set(key, [string_vx[i], string_vy[i]]) );
+	make(this.color2type, this.color2vel);
 });
