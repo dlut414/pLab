@@ -19,15 +19,19 @@
 					<input type="text" class="form-control form-control-sm" id="point_distance" value="0.02">
 				</div>
 				<br>
-				<p>One color maps to one Type:</p>
-				<div class="form-group">
+				<div class="input-group">
+					<span class="input-group-addon">Trailing Zeros</span>
+					<input type="text" class="form-control form-control-sm" id="trailing_zero" value="1">
+				</div>
+				<br>
+				<div class="form-group" id="type-group">
+					<p>One color maps to one type:</p>
 					<div class="row">
 						<div class="col">
 							<div class="input-group">
 								<input type="color" class="form-control form-control-sm color" value="#FF0000">
 							</div>
 						</div>
-						<div class="col-3">-></div>
 						<div class="col">
 							<div class="input-group">
 								<input class="form-control form-control-sm type" value="1">
@@ -43,7 +47,6 @@
 								<input type="color" class="form-control form-control-sm color" value="#00FF00">
 							</div>
 						</div>
-						<div class="col-3">-></div>
 						<div class="col">
 							<div class="input-group">
 								<input class="form-control form-control-sm type" value="2">
@@ -59,10 +62,33 @@
 								<input type="color" class="form-control form-control-sm color" value="#0000FF">
 							</div>
 						</div>
-						<div class="col-3">-></div>
 						<div class="col">
 							<div class="input-group">
 								<input class="form-control form-control-sm type" value="3">
+								<span class="input-group-btn">
+									<button class="btn btn-default btn-sm btn-add" type="button">+</button>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<br>
+				<div class="form-group" id="velocity-group">
+					<p>One color maps to one velocity distribution:</p>
+					<div class="row">
+						<div class="col-3">
+							<div class="input-group">
+								<input type="color" class="form-control form-control-sm color-vel" value="#000000">
+							</div>
+						</div>
+						<div class="col">
+							<div class="input-group">
+								<span class="input-group-addon">vx=</span>
+								<input class="form-control form-control-sm vel" value="0">
+							</div>
+							<div class="input-group">
+								<span class="input-group-addon">vy=</span>
+								<input class="form-control form-control-sm vel" value="0">
 								<span class="input-group-btn">
 									<button class="btn btn-default btn-sm btn-add" type="button">+</button>
 								</span>
@@ -78,8 +104,16 @@
 	<!-- !PAGE CONTENT! -->
 	<div class="w3-main w3-white" style="margin-left:260px">
 		<div class="container">
+			<h4><strong>Introduction</strong></h4>
+			<p>Convert bitmap files to point cloud files in the follow format:</p>
+			<p>Type  X  Y  Vx  Vy  0  ...</p>
+			<p>White pixels are skipped. Other colors are mapped to different types and velocities.</p>
+			<br>
+			<p>If a pixel is on the i-th row from bottom and j-th column from left:</p>
+			<p>X = j* point_distance, Y = i* point_dixtance.</p>
+			<br>
+			<p>A <a href="" download>sample</a> bmp file.</p>
 			<hr>
-			<h4><strong>Extra Info</strong></h4>
 		</div>
 		<!-- Contact -->
 		<div class="w3-container" id="contact">
@@ -184,7 +218,7 @@
 	$(document).on('click', '.btn-add', function(e){
 		e.preventDefault();
 		var current = $(this).parents('.row');
-		$('.form-group').append( current.clone() );
+		$(this).parents('.form-group').append( current.clone() );
 		$(this).removeClass('btn-add')
 				.addClass('btn-remove')
 				.html('-');
