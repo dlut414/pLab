@@ -25,13 +25,13 @@ class BasicViewForm(forms.Form):
                                  initial=0.0);
         
     def clean_selected_scalar(self):
-        data = self.cleaned_clean['selected_scalar'];
+        data = self.cleaned_data['selected_scalar'];
         return data;
     def clean_range_max(self):
-        data = self.cleaned_clean['range_max'];
+        data = self.cleaned_data['range_max'];
         return data;
     def clean_range_min(self):
-        data = self.cleaned_clean['range_min'];
+        data = self.cleaned_data['range_min'];
         return data;
 
 class StreamlineForm(forms.Form):
@@ -93,26 +93,26 @@ class StreamlineForm(forms.Form):
                            label_suffix='',
                            initial=1.0);
     def clean_radius(self):
-        data = self.cleaned_clean['radius'];
+        data = self.cleaned_data['radius'];
         return data;
     def clean_nlines(self):
-        data = self.cleaned_clean['nlines'];
+        data = self.cleaned_data['nlines'];
         return data;
     def clean_slen(self):
-        data = self.cleaned_clean['slen'];
+        data = self.cleaned_data['slen'];
         return data;
     def clean_rsln(self):
-        data = self.cleaned_clean['rsln'];
+        data = self.cleaned_data['rsln'];
         return data;
     def clean_p1x(self):
-        data = self.cleaned_clean['p1x'];
+        data = self.cleaned_data['p1x'];
         return data;
     def clean_p1y(self):
-        data = self.cleaned_clean['p1y'];
+        data = self.cleaned_data['p1y'];
         return data;
     def clean_p2x(self):
-        data = self.cleaned_clean['p2x'];
+        data = self.cleaned_data['p2x'];
         return data;
     def clean_p2y(self):
-        data = self.cleaned_clean['p2y'];
+        data = self.cleaned_data['p2y'];
         return data;
