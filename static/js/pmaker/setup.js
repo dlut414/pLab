@@ -8,11 +8,12 @@ function setup(result){
 		var offset = 54 + i* this.rowSize;
 		var dv = new DataView(result, offset, this.rowSize);
 		for(var j=0;j<this.width;j++){
-			var r = dv.getUint8(3*j, true);
-			var g = dv.getUint8(3*j + 1, true);
-			var b = dv.getUint8(3*j + 2, true);
+			//order: b-g-r
+			var b = dv.getUint8(3*j);
+			var g = dv.getUint8(3*j + 1);
+			var r = dv.getUint8(3*j + 2);
 			var color = ((r|0) << 16) + ((g|0) << 8) + (b|0);
-			this.data.push(color.toString(16));
+			this.data.push(color);
 		}
 	}
 }
@@ -33,15 +34,17 @@ function make(color2type, color2vel){
 				vx = vx ? vx : 0;
 				vy = vy ? vy : 0;
 			}
-			var line = type + '%20' + x.toExponential(6) + '%20' + y.toExponential(6) + '%20'
-					+ vx.toExponential(6) + '%20' + vy.toExponential(6);
-			for(var p=0;p<$('#trailing_zero').val();p++) line += '%20' + 0;
-			line += '%0D%0A';
+			var line = type + ' ' + x.toExponential(6) + ' ' + y.toExponential(6) + ' '
+					+ vx.toExponential(6) + ' ' + vy.toExponential(6);
+			for(var p=0;p<$('#trailing_zero').val();p++) line += ' ' + 0;
+			line += '\n';
 			output += line;
 		}
 	}
+	var blob = new Blob([output], {type : 'text/plain'});
 	var element = document.createElement('a');
-	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + output);
+	// element.setAttribute('href', 'data:text/plain;charset=utf-8,' + output); //need to use percent encoding
+	element.setAttribute('href', window.URL.createObjectURL(blob));
 	element.setAttribute('download', 'output.txt');
 	element.style.display = 'none';
 	document.body.appendChild(element);
@@ -52,7 +55,7 @@ $('#button-save').click(function(){
 	//color -> type
 	var color = [], type = [];
 	$('.color').each(function(index){
-		color.push($(this).val().substr(-6));
+		color.push(parseInt($(this).val().substr(-6), 16));
 	});
 	$('.type').each(function(index){
 		type.push($(this).val());
@@ -66,7 +69,7 @@ $('#button-save').click(function(){
 	//color -> vx, vy
 	var color_vel = [], string_vx = [], string_vy = [];
 	$('.color-vel').each(function(index){
-		color_vel.push($(this).val().substr(-6));
+		color_vel.push(parseInt($(this).val().substr(-6), 16));
 	});
 	$('.string-vx').each(function(index){
 		string_vx.push($(this).val());
