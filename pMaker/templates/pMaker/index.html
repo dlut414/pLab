@@ -1,34 +1,230 @@
 {%extends "base.html"%}
 {%block title%}<title>{{app_name}}</title>{%endblock%}
 {%block content%}
-
-Under construction!
-<!-- Sidebar/menu -->
-
-<!-- !PAGE CONTENT! -->
-<div class="w3-main w3-white" style="margin-left:260px">
-
-  <!-- Push down content on small screens -->
-  <div class="w3-hide-large" style="margin-top:80px"></div>
-
-  <div class="w3-container">
-    <div>
-	
-    </div>
-    <hr>
-    
-    
-    <h4><strong>Extra Info</strong></h4>
-
-  <!-- Contact -->
-  <div class="w3-container" id="contact">
-    <h4><strong>Contact</strong></h4>
-    <i class="fa fa-map-marker" style="width:30px"></i>Hu Fangyuan<br>
-	<i class="fa fa-map-marker" style="width:30px"></i>Koshizuka-Shibata-lab, the University of Tokyo<br>
-    <i class="fa fa-envelope" style="width:30px"> </i> Email: hfy8373_at_mps.q.t.u-tokyo.ac.jp<br>
-  <footer class="w3-container w3-padding-16" style="margin-top:32px">Powered by <a href="https://github.com/dlut414" target="_blank" class="w3-hover-text-green">dlut414</a></footer>
-  <footer class="w3-container w3-padding-16">css template from <a href="https://www.w3schools.com" target="_blank" class="w3-hover-text-green">w3schools</a> & <a href="http://getbootstrap.com/" target="_blank" class="w3-hover-text-green">bootstrap</a></footer>
-  </div>
-<!-- End page content -->
+<div class="container">
+	<!-- Sidebar/menu -->
+	<div class="w3-sidebar w3-light-grey" style="z-index:3;width:260px;" id="mySidebar">
+		<div class="w3-container w3-display-container" style="padding-top:16px!important;padding-bottom:64px!important">
+			<h3>{{app_name}}</h3>
+			<hr>
+			<div id="drop_zone">
+				<p>Drop a bmp file here</p>
+				<p><i> Can be created by paint software in your system.</i></p>
+			</div>
+			<div id="progress_bar"><div class="percent">0%</div></div>
+			<output id="list"></output>
+			<form action="" target="_self" id="form">
+				<div class="input-group">
+					<span class="input-group-addon">Point distance</span>
+					<input type="text" class="form-control form-control-sm" id="point_distance" value="0.02">
+				</div>
+				<br>
+				<div class="input-group">
+					<span class="input-group-addon">Trailing Zeros</span>
+					<input type="text" class="form-control form-control-sm" id="trailing_zero" value="1">
+				</div>
+				<br>
+				<div class="form-group" id="type-group">
+					<p>One color maps to one type:</p>
+					<div class="row">
+						<div class="col">
+							<div class="input-group">
+								<input type="color" class="form-control form-control-sm color" value="#FF0000">
+							</div>
+						</div>
+						<div class="col">
+							<div class="input-group">
+								<input class="form-control form-control-sm type" value="1">
+								<span class="input-group-btn">
+									<button class="btn btn-default btn-sm btn-remove" type="button">-</button>
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<div class="input-group">
+								<input type="color" class="form-control form-control-sm color" value="#00FF00">
+							</div>
+						</div>
+						<div class="col">
+							<div class="input-group">
+								<input class="form-control form-control-sm type" value="2">
+								<span class="input-group-btn">
+									<button class="btn btn-default btn-sm btn-remove" type="button">-</button>
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<div class="input-group">
+								<input type="color" class="form-control form-control-sm color" value="#0000FF">
+							</div>
+						</div>
+						<div class="col">
+							<div class="input-group">
+								<input class="form-control form-control-sm type" value="3">
+								<span class="input-group-btn">
+									<button class="btn btn-default btn-sm btn-add" type="button">+</button>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<br>
+				<div class="form-group" id="velocity-group">
+					<p>One color maps to one velocity distribution:</p>
+					<div class="row">
+						<div class="col-3">
+							<div class="input-group">
+								<input type="color" class="form-control form-control-sm color-vel" value="#000000">
+							</div>
+						</div>
+						<div class="col">
+							<div class="input-group">
+								<span class="input-group-addon">vx=</span>
+								<input class="form-control form-control-sm string-vx" value="0">
+							</div>
+							<div class="input-group">
+								<span class="input-group-addon">vy=</span>
+								<input class="form-control form-control-sm string-vy" value="0">
+								<span class="input-group-btn">
+									<button class="btn btn-default btn-sm btn-add" type="button">+</button>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<input type="button" value="Save" class="btn btn-primary btn-sm" id="button-save">
+			</form>
+			<hr>
+		</div>
+	</div>
+	<!-- !PAGE CONTENT! -->
+	<div class="w3-main w3-white" style="margin-left:260px">
+		<div class="container">
+			<h4><strong>Introduction</strong></h4>
+			<p>Convert bitmap files to point cloud files in the follow format:</p>
+			<p>Type  X  Y  Vx  Vy  0  ...</p>
+			<p>White pixels are skipped. Other colors are mapped to different types and velocities.</p>
+			<br>
+			<p>If a pixel is on the i-th row from bottom and j-th column from left:</p>
+			<p>X = j* point_distance, Y = i* point_dixtance.</p>
+			<br>
+			<p>Velocity distribution can be <strong>functions</strong> of x and y, e.g. vx=x*x + y, vy = 0.
+			<br>(should be in JavaScript syntax)</p>
+			<p>A <a href="https://github.com/dlut414/pLab/files/1520822/cavity.zip" download>sample</a> bmp file.</p>
+			<hr>
+		</div>
+		<!-- Contact -->
+		<div class="w3-container" id="contact">
+			<h4><strong>Contact</strong></h4>
+			<i class="fa fa-map-marker" style="width:30px"></i>Hu Fangyuan<br>
+			<i class="fa fa-map-marker" style="width:30px"></i>Koshizuka-Shibata-lab, the University of Tokyo<br>
+			<i class="fa fa-envelope" style="width:30px"> </i> Email: hfy8373_at_mps.q.t.u-tokyo.ac.jp<br>
+			<footer class="w3-container w3-padding-16" style="margin-top:32px">Powered by <a href="https://github.com/dlut414" target="_blank" class="w3-hover-text-green">dlut414</a></footer>
+			<footer class="w3-container w3-padding-16">css template from <a href="https://www.w3schools.com" target="_blank" class="w3-hover-text-green">w3schools</a> & <a href="http://getbootstrap.com/" target="_blank" class="w3-hover-text-green">bootstrap</a></footer>
+		</div>
+	<!-- End page content -->
+	</div>
 </div>
+{% load static %}
+<script src="{% static 'js/pmaker/setup.js' %}"></script>
+<script>
+	'use strict';
+
+	if (window.File && window.FileReader && window.FileList && window.Blob) {
+		//All the File APIs are supported.
+	} else {
+		alert('The functions are not fully supported in this browser.');
+	}
+
+	var reader;
+	var progress = document.querySelector('.percent');
+
+	function errorHandler(evt) {
+		switch (evt.target.error.code) {
+			case evt.target.error.NOT_FOUND_ERR:
+				alert('File Not Found!');
+				break;
+			case evt.target.error.NOT_READABLE_ERR:
+				alert('File is not readable');
+				break;
+			case evt.target.error.ABORT_ERR:
+				break; // noop
+			default:
+				alert('An error occurred reading this file.');
+		};
+	}
+
+	function updateProgress(evt) {
+		// evt is an ProgressEvent.
+		if (evt.lengthComputable) {
+			var percentLoaded = Math.round(evt.loaded / evt.total * 100);
+			// Increase the progress bar length.
+			if (percentLoaded < 100) {
+				progress.style.width = percentLoaded + '%';
+				progress.textContent = percentLoaded + '%';
+			}
+		}
+	}
+
+	function handleFileSelect(evt) {
+		evt.stopPropagation();
+		evt.preventDefault();
+		var output = [];
+		var f = evt.dataTransfer.files[0];
+		output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ', f.size, ' bytes, last modified: ', f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a', '</li>');
+		document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+
+		// Reset progress indicator on new file selection.
+		progress.style.width = '0%';
+		progress.textContent = '0%';
+		reader = new FileReader();
+		reader.onerror = errorHandler;
+		reader.onprogress = updateProgress;
+		reader.onloadstart = function (e) {
+			document.getElementById('progress_bar').className = 'loading';
+		};
+		reader.onload = function (e) {
+			// Ensure that the progress bar displays 100% at the end.
+			progress.style.width = '100%';
+			progress.textContent = '100%';
+		};
+		reader.onloadend = function (e) {
+			if (reader.readyState == FileReader.DONE) {
+				setup(reader.result);
+			}
+			else {
+				alert('Reading file failed!');
+			}
+		};
+		reader.readAsArrayBuffer(f);
+	}
+	function handleDragOver(evt) {
+		evt.stopPropagation();
+		evt.preventDefault();
+		evt.dataTransfer.dropEffect = 'copy';
+	}
+	var dropZone = document.getElementById('drop_zone');
+	dropZone.addEventListener('dragover', handleDragOver, false);
+	dropZone.addEventListener('drop', handleFileSelect, false);
+	
+	//deal with add(+) and remove(-) rows
+	$(document).on('click', '.btn-remove', function(e){
+		$(this).parents('.row').remove();
+		e.preventDefault();
+		return false;
+	});
+	$(document).on('click', '.btn-add', function(e){
+		e.preventDefault();
+		var current = $(this).parents('.row');
+		$(this).parents('.form-group').append( current.clone() );
+		$(this).removeClass('btn-add')
+				.addClass('btn-remove')
+				.html('-');
+		return false;
+	});
+</script>
 {%endblock%}
