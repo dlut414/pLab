@@ -37,15 +37,18 @@ function make(color2type, color2vel){
 			var line = type + ' ' + x.toExponential(6) + ' ' + y.toExponential(6) + ' '
 					+ vx.toExponential(6) + ' ' + vy.toExponential(6);
 			for(var p=0;p<$('#trailing_zero').val();p++) line += ' ' + 0;
-			line += '\n';
+			line += '\r\n';
 			output += line;
 		}
 	}
-	var blob = new Blob([output], {type : 'text/plain'});
+	download('output.txt', output);
+}
+function download(filename, text){
+	var blob = new Blob([text], {type : 'text/plain'});
 	var element = document.createElement('a');
 	// element.setAttribute('href', 'data:text/plain;charset=utf-8,' + output); //need to use percent encoding
 	element.setAttribute('href', window.URL.createObjectURL(blob));
-	element.setAttribute('download', 'output.txt');
+	element.setAttribute('download', filename);
 	element.style.display = 'none';
 	document.body.appendChild(element);
 	element.click();
