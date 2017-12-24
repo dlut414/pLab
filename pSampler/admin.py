@@ -5,4 +5,6 @@ from django.contrib import admin
 
 from .models import RequestInstance
 
-admin.site.register(RequestInstance);
+@admin.register(RequestInstance)
+class RequestInstanceAdmin(admin.ModelAdmin):
+	list_display = ('ip_address', 'count', 'last_request');
