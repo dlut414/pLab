@@ -6,15 +6,6 @@ from .forms import BasicViewForm
 from .forms import StreamlineForm
 from .models import RequestInstance
 
-def get_client_ip(request):
-	xff = request.META.get('HTTP_X_FORWARDED_FOR');
-	if xff:
-		print "xff found";
-		ret = xff.split(',')[0];
-	else:
-		ret = request.META.get('REMOTE_ADDR');
-	return ret;
-
 def index(request):
 	form = BasicViewForm();
 	form_sl = StreamlineForm();
@@ -31,3 +22,11 @@ def index(request):
 	else:
 		RequestInstance.objects.create(ip_address=ip);
 	return render(request, 'pSampler/index.html', context=CONTEXT);
+
+def get_client_ip(request):
+	xff = request.META.get('HTTP_X_FORWARDED_FOR');
+	if xff:
+		ret = xff.split(',')[0].strip();
+	else:
+		ret = request.META.get('REMOTE_ADDR');
+	return ret;
