@@ -14,7 +14,7 @@ var range_max = 1.0, range_min = 0.0;
 var pos_avg, pos_max, pos_min;
 var pan;
 var scale;
-var point_size = Number($('#point_size').val());
+//var point_size = Number($('#point_size').val());
 var mouse_down = false;
 var canvas_size;
 var mousePos = [0, 0];
@@ -40,7 +40,7 @@ var source_point_vertex = `
 	uniform vec2 canvas_size;
 	uniform vec2 pan;
 	uniform float scale;
-	uniform float point_size;
+	//uniform float point_size;
 	attribute float type;
 	attribute float x;
 	attribute float y;
@@ -55,10 +55,10 @@ var source_point_vertex = `
 		pos.x = pos.x / canvas_size.x * canvas_size.y;
 		pos = scale* pos;
 		pos = pos + pan;
-		float scaled_pointSize = scale* point_size;
+		//float scaled_pointSize = scale* point_size;
 		gl_Position = vec4(pos, 0.0, 1.0);
 		//gl_PointSize = 0.3* scaled_pointSize;
-		gl_PointSize = 0.3* 2.0;
+		gl_PointSize = 5.0;
 	}
 `;
 var source_point_fragment = `
@@ -168,7 +168,7 @@ function setupData_2D(result){
 	data = [];
 	var lines = result.split(/[\n]+|[\r\n]+/);
 	if(lines[lines.length-1] == '') lines.splice(lines.length-1, 1);
-	var n_cols = lines[0].split(/[\s]+|[\,]/).length;alert(n_cols);
+	var n_cols = lines[0].split(/[\s]+|[\,]/).length;
 	$($('#selected_scalar option')).remove();
 	for(var i=0;i<n_cols;i++) {
 		$('#selected_scalar').append('<option value=' + String(i) + '>' + String(i) + '</option>');
@@ -231,7 +231,7 @@ function point_2D(){
 		gl.uniform2fv(gl.getUniformLocation(this.program, 'canvas_size'), canvas_size);
 		gl.uniform2fv(gl.getUniformLocation(this.program, 'pan'), pan);
 		gl.uniform1f(gl.getUniformLocation(this.program, 'scale'), scale);
-		gl.uniform1f(gl.getUniformLocation(this.program, 'point_size'), point_size);
+		//gl.uniform1f(gl.getUniformLocation(this.program, 'point_size'), point_size);
 		
 		gl.bindBuffer(gl.ARRAY_BUFFER, vbo_type);
 		gl.bufferData(gl.ARRAY_BUFFER, data[0], gl.STATIC_DRAW);
@@ -397,7 +397,7 @@ function colorPick(){
 		gl.uniform2fv(gl.getUniformLocation(this.program, 'canvas_size'), canvas_size);
 		gl.uniform2fv(gl.getUniformLocation(this.program, 'pan'), pan);
 		gl.uniform1f(gl.getUniformLocation(this.program, 'scale'), scale);
-		gl.uniform1f(gl.getUniformLocation(this.program, 'point_size'), point_size);
+		//gl.uniform1f(gl.getUniformLocation(this.program, 'point_size'), point_size);
 		
 		gl.bindBuffer(gl.ARRAY_BUFFER, vbo_x);
 		gl.bufferData(gl.ARRAY_BUFFER, data[1], gl.STATIC_DRAW);
@@ -505,10 +505,10 @@ $('#range_min').change( function(){
 	range_min = Number($('#range_min').val());
 	render_2D();
 });
-$('#point_size').change( function(){
-	point_size = Number($('#point_size').val());
-	render_2D();
-});
+// $('#point_size').change( function(){
+	// point_size = Number($('#point_size').val());
+	// render_2D();
+// });
 $('#radius').change(function(){
 	streamline_drawer.radius = Number($('#radius').val());
 });
