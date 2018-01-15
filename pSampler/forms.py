@@ -23,7 +23,13 @@ class BasicViewForm(forms.Form):
                                  label='Min (mapping to blue): ',
                                  label_suffix='',
                                  initial=0.0);
-        
+    point_size = forms.FloatField(widget=forms.NumberInput(attrs={
+								'id':'point_size',
+								'class':'form-control form-control-sm',}),
+								label='Point size (pixels): ',
+								label_suffix='',
+								initial=2.0);
+
     def clean_selected_scalar(self):
         data = self.cleaned_data['selected_scalar'];
         return data;
@@ -33,6 +39,9 @@ class BasicViewForm(forms.Form):
     def clean_range_min(self):
         data = self.cleaned_data['range_min'];
         return data;
+	def clean_point_size(self):
+		data = self.cleaned_data['point_size'];
+		return data;
 
 class StreamlineForm(forms.Form):
     radius = forms.FloatField(widget=forms.NumberInput(attrs={

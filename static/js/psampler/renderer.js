@@ -14,6 +14,7 @@ var range_max = 1.0, range_min = 0.0;
 var pos_avg, pos_max, pos_min;
 var pan;
 var scale;
+var point_size = Number($('#point_size').val());
 var mouse_down = false;
 var canvas_size;
 var mousePos = [0, 0];
@@ -39,13 +40,13 @@ var source_point_vertex = `
 	uniform vec2 canvas_size;
 	uniform vec2 pan;
 	uniform float scale;
+	uniform float point_size;
 	attribute float type;
 	attribute float x;
 	attribute float y;
 	attribute float s;
 	varying float v_type;
 	varying float v_s;
-	const float pointSize = 1.0;
 	void main() {
 		v_type = type;
 		v_s = s;
@@ -54,9 +55,10 @@ var source_point_vertex = `
 		pos.x = pos.x / canvas_size.x * canvas_size.y;
 		pos = scale* pos;
 		pos = pos + pan;
-		float scaled_pointSize = scale* pointSize;
+		float scaled_pointSize = scale* point_size;
 		gl_Position = vec4(pos, 0.0, 1.0);
-		gl_PointSize = 0.3* scaled_pointSize;
+		//gl_PointSize = 0.3* scaled_pointSize;
+		gl_PointSize = 0.3* 2.0;
 	}
 `;
 var source_point_fragment = `
@@ -164,15 +166,16 @@ function setupData_2D(result){
 	pos_max = new Float32Array(2);
 	pos_min = new Float32Array(2);
 	data = [];
-	var lines = result.split(/(?:\n)+|(?:\r\n)+/);
+	var lines = result.split(/[\n]+|[\r\n]+/);
 	if(lines[lines.length-1] == '') lines.splice(lines.length-1, 1);
-	var n_cols = lines[0].split(/(?:\s)+/).length;
+	var n_cols = lines[0].split(/[\s]+|[\,]/).length;alert(n_cols);
+	$($('#selected_scalar option')).remove();
 	for(var i=0;i<n_cols;i++) {
 		$('#selected_scalar').append('<option value=' + String(i) + '>' + String(i) + '</option>');
 		data.push(new Float32Array(lines.length));
 	}
 	for(var i=0;i<lines.length;i++){
-		var line = lines[i].split(/(?:\s)+/);
+		var line = lines[i].split(/[\s]+|[\,]/);
 		var type = Number(line[0]);
 		var x = Number(line[1]), y = Number(line[2]);
 		var vx = Number(line[3]), vy = Number(line[4]);
@@ -228,7 +231,8 @@ function point_2D(){
 		gl.uniform2fv(gl.getUniformLocation(this.program, 'canvas_size'), canvas_size);
 		gl.uniform2fv(gl.getUniformLocation(this.program, 'pan'), pan);
 		gl.uniform1f(gl.getUniformLocation(this.program, 'scale'), scale);
-
+		gl.uniform1f(gl.getUniformLocation(this.program, 'point_size'), point_size);
+		
 		gl.bindBuffer(gl.ARRAY_BUFFER, vbo_type);
 		gl.bufferData(gl.ARRAY_BUFFER, data[0], gl.STATIC_DRAW);
 		var type_loc = gl.getAttribLocation(this.program, 'type');
@@ -393,6 +397,7 @@ function colorPick(){
 		gl.uniform2fv(gl.getUniformLocation(this.program, 'canvas_size'), canvas_size);
 		gl.uniform2fv(gl.getUniformLocation(this.program, 'pan'), pan);
 		gl.uniform1f(gl.getUniformLocation(this.program, 'scale'), scale);
+		gl.uniform1f(gl.getUniformLocation(this.program, 'point_size'), point_size);
 		
 		gl.bindBuffer(gl.ARRAY_BUFFER, vbo_x);
 		gl.bufferData(gl.ARRAY_BUFFER, data[1], gl.STATIC_DRAW);
@@ -498,6 +503,10 @@ $('#range_max').change( function(){
 });
 $('#range_min').change( function(){
 	range_min = Number($('#range_min').val());
+	render_2D();
+});
+$('#point_size').change( function(){
+	point_size = Number($('#point_size').val());
 	render_2D();
 });
 $('#radius').change(function(){
